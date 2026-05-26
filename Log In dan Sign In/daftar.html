@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="masuk.css">
+    <link rel="stylesheet" href="../dashboard.css">
+    <style>
+        /* Prevent layout issues on smaller screens */
+        body {
+            overflow-y: auto;
+            height: 100%;
+            min-height: 100vh;
+            padding: 60px 0;
+            box-sizing: border-box;
+            background: linear-gradient(180deg, #A4C4E0 0%, #D8E5F1 50%, #F0F5FA 100%) !important;
+        }
+
+        .form-card {
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACK BUTTON -->
+    <a href="../Beranda/beranda.html" class="back-btn" title="Kembali">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </a>
+
+    <!-- FORM CARD DAFTAR -->
+    <div class="form-card">
+        <div class="brand-logo" style="margin-bottom: 16px; justify-content: center;">
+            <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+            <div class="brand-text">
+                <div class="brand-title"><span>FASKER</span> GATE</div>
+                <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+            </div>
+        </div>
+
+        <div class="form-group"><input type="text" id="registerNama" placeholder="Nama Lengkap"></div>
+        <div class="form-group"><input type="email" id="registerEmail" placeholder="Email"></div>
+        <div class="form-group"><input type="password" id="registerPass" placeholder="Password"></div>
+        <div class="form-group"><input type="text" id="registerHp" placeholder="Nomor HP"></div>
+        <div class="form-group"><input type="text" id="registerInstansi" placeholder="Asal Instansi"></div>
+        <div class="form-group"><input type="text" id="registerNip" placeholder="NIP"></div>
+        <div class="form-group"><input type="text" id="registerGol" placeholder="Pangkat/Gol"></div>
+        <div class="form-group" style="margin-bottom: 24px;"><input type="text" id="registerJabatan" placeholder="Jabatan"></div>
+
+        <button class="btn-form-submit" onclick="handleRegister()">Daftar</button>
+    </div>
+
+    <script>
+        function handleRegister() {
+            const nama = document.getElementById('registerNama').value || 'Bakti';
+            const email = document.getElementById('registerEmail').value || 'bakti@gmail.com';
+            const pass = document.getElementById('registerPass').value || 'password123';
+            const hp = document.getElementById('registerHp').value || '08123456789';
+            const instansi = document.getElementById('registerInstansi').value || 'KemenDagri';
+            const nip = document.getElementById('registerNip').value || '234567';
+            const gol = document.getElementById('registerGol').value || 'Gol I';
+            const jabatan = document.getElementById('registerJabatan').value || 'Pranata Komputer';
+            
+            const tempAsn = { nama, email, pass, hp, instansi, nip, gol, jabatan };
+            localStorage.setItem('temp_asn', JSON.stringify(tempAsn));
+            
+            if (email.toLowerCase().includes('admin')) {
+                window.location.href = '../Admin/admin.html';
+            } else {
+                window.location.href = '../ASN/input_data.html';
+            }
+        }
+    </script>
+</body>
+
+</html>

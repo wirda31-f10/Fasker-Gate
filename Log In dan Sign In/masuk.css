@@ -1,0 +1,148 @@
+/* masuk.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(180deg, #A4C4E0 0%, #D8E5F1 50%, #F0F5FA 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.back-btn {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-btn svg {
+    width: 32px;
+    height: 32px;
+}
+
+.login-card {
+    width: 460px;
+    background: rgba(232, 237, 242, 0.65);
+    border-radius: 25px;
+    border: 1px solid #CF840A80;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ================= BRAND LOGO ================= */
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.brand-icon {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: left;
+}
+
+.brand-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: #E9B242;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
+}
+
+.brand-title span {
+    color: #213566;
+}
+
+.brand-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #213566;
+    margin-top: 2px;
+}
+
+/* Enlarge logo inside login card */
+.login-card .brand-icon {
+    height: 60px;
+}
+
+.login-card .brand-title {
+    font-size: 26px;
+}
+
+.login-card .brand-subtitle {
+    font-size: 15px;
+}
+
+.input-group {
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.input-group input {
+    width: 100%;
+    height: 52px;
+    background: transparent;
+    border: 1px solid rgba(207, 132, 10, 0.3);
+    border-radius: 4px;
+    padding: 0 16px;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+}
+
+.input-group input::placeholder {
+    color: #999;
+    font-weight: 600;
+}
+
+.btn-submit {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130px;
+    height: 36px;
+    background: #D78B10;
+    color: #000;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(215, 139, 16, 0.2);
+    transition: 0.2s;
+}
+
+.btn-submit:hover {
+    background: #b5750d;
+}

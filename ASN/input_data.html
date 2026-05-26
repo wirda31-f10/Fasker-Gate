@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Data - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../Log%20In%20dan%20Sign%20In/masuk.css">
+    <link rel="stylesheet" href="../dashboard.css">
+    <style>
+        /* Prevent layout issues on smaller screens */
+        body {
+            overflow-y: auto;
+            height: 100%;
+            min-height: 100vh;
+            padding: 60px 0;
+            box-sizing: border-box;
+            background: linear-gradient(180deg, #A4C4E0 0%, #D8E5F1 50%, #F0F5FA 100%) !important;
+        }
+
+        .form-card {
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACK BUTTON -->
+    <a href="../Log%20In%20dan%20Sign%20In/daftar.html" class="back-btn" title="Kembali">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </a>
+
+    <!-- FORM CARD INPUT DATA -->
+    <div class="form-card">
+        <div class="brand-logo" style="margin-bottom: 24px; justify-content: center;">
+            <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+            <div class="brand-text">
+                <div class="brand-title"><span>FASKER</span> GATE</div>
+                <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+            </div>
+        </div>
+
+        <div class="form-group"><label style="font-size: 10px; color: #555; margin-left: 16px;">Surat Permohonan (.pdf)</label><input type="file" id="inputSurat" accept=".pdf" style="padding-top: 6px;"></div>
+        <div class="form-group"><label style="font-size: 10px; color: #555; margin-left: 16px;">Formulir Lamaran (.pdf)</label><input type="file" id="inputFormulir" accept=".pdf" style="padding-top: 6px;"></div>
+        <div class="form-group"><label style="font-size: 10px; color: #555; margin-left: 16px;">Curriculum Vitae (.pdf)</label><input type="file" id="inputCv" accept=".pdf" style="padding-top: 6px;"></div>
+        <div class="form-group" style="margin-bottom: 24px;"><label style="font-size: 10px; color: #555; margin-left: 16px;">Sertifikat TOEFL (.pdf)</label><input type="file" id="inputToefl" accept=".pdf" style="padding-top: 6px;"></div>
+
+        <button class="btn-form-submit" onclick="handleSaveData()">Simpan</button>
+    </div>
+
+    <script>
+        function handleSaveData() {
+            const tempAsnStr = localStorage.getItem('temp_asn');
+            const tempAsn = tempAsnStr ? JSON.parse(tempAsnStr) : {
+                nama: 'Bakti',
+                email: 'bakti@gmail.com',
+                pass: 'password123',
+                hp: '08123456789',
+                instansi: 'KemenDagri',
+                nip: '234567',
+                gol: 'Gol I',
+                jabatan: 'Pranata Komputer'
+            };
+            const fSurat = document.getElementById('inputSurat').files[0];
+            const fFormulir = document.getElementById('inputFormulir').files[0];
+            const fCv = document.getElementById('inputCv').files[0];
+            const fToefl = document.getElementById('inputToefl').files[0];
+
+            const surat = fSurat ? fSurat.name : (localStorage.getItem('asn_surat') || '');
+            const formulir = fFormulir ? fFormulir.name : (localStorage.getItem('asn_formulir') || '');
+            const cv = fCv ? fCv.name : (localStorage.getItem('asn_cv') || '');
+            const toefl = fToefl ? fToefl.name : (localStorage.getItem('asn_toefl') || '');
+            
+            // Create new application with full details
+            const newApp = {
+                nama: tempAsn.nama,
+                email: tempAsn.email,
+                hp: tempAsn.hp,
+                instansi: tempAsn.instansi,
+                nip: tempAsn.nip,
+                gol: tempAsn.gol,
+                jabatan: tempAsn.jabatan,
+                surat: surat || 'surat_permohonan.pdf',
+                formulir: formulir || 'formulir_lamaran.pdf',
+                cv: cv || 'cv.pdf',
+                toefl: toefl || 'toefl.pdf',
+                tahun: '2026',
+                status: 'Pending'
+            };
+            
+            // Get existing applications array, append, and save
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            apps.push(newApp);
+            localStorage.setItem('asn_applications', JSON.stringify(apps));
+            
+            // Clean up temporary registration data
+            localStorage.removeItem('temp_asn');
+            
+            // Set active user info so asn.html dashboard loads the new user
+            localStorage.setItem('asn_nama', tempAsn.nama);
+            localStorage.setItem('asn_email', tempAsn.email);
+            localStorage.setItem('asn_pass', tempAsn.pass);
+            localStorage.setItem('asn_hp', tempAsn.hp);
+            localStorage.setItem('asn_instansi', tempAsn.instansi);
+            localStorage.setItem('asn_nip', tempAsn.nip);
+            localStorage.setItem('asn_gol', tempAsn.gol);
+            localStorage.setItem('asn_jabatan', tempAsn.jabatan);
+            localStorage.setItem('asn_surat', surat);
+            localStorage.setItem('asn_formulir', formulir);
+            localStorage.setItem('asn_cv', cv);
+            localStorage.setItem('asn_toefl', toefl);
+            
+            window.location.href = 'asn.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            // Native file inputs cannot be pre-filled programmatically for security reasons.
+            // When building the real backend, we'd show the previously uploaded filename next to the input.
+        });
+    </script>
+</body>
+
+</html>

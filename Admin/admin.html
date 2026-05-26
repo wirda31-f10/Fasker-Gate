@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../Beranda/beranda.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="#" class="menu-item active">
+                <span class="icon">⊞</span> Dashboard
+            </a>
+            <a href="verifikasi.html" class="menu-item">
+                <span class="icon">📋</span> Verifikasi
+            </a>
+            <a href="unggah_tawaran.html" class="menu-item">
+                <span class="icon">📤</span> Unggah Tawaran
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang Admin Fasker!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    Pusat Fasker
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb">Beranda</div>
+
+            <!-- DASHBOARD GRID -->
+            <div class="dashboard-grid">
+                <!-- LEFT COLUMN -->
+                <div class="dashboard-column">
+                    <!-- METRIC CARD -->
+                    <div class="metric-card" onclick="window.location.href='unggah_tawaran.html?tahun=2026'" style="cursor: pointer;">
+                        <div class="metric-title">Total Tawaran Beasiswa</div>
+                        <div class="metric-value-container">
+                            <span class="metric-value" id="total-tawaran-val">245</span>
+                            <span class="metric-badge">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px; margin-right:2px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- LINE CHART CARD -->
+                    <div class="chart-card" onclick="window.location.href='verifikasi.html'" style="cursor: pointer;">
+                        <div class="chart-title">Jumlah ASN Mendaftar & Berhasil per Tahun</div>
+                        <div class="chart-container">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT COLUMN -->
+                <div class="dashboard-column">
+                    <!-- BAR CHART CARD -->
+                    <div class="chart-card tall-chart-card" onclick="window.location.href='unggah_tawaran.html'" style="cursor: pointer;">
+                        <div class="chart-title">Total Tawaran Beasiswa per Tahun</div>
+                        <div class="chart-container">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 0. Pre-populate localStorage if empty with a rich and varied dataset (> 5 per year)
+            if (!localStorage.getItem('asn_applications_seeded_v6')) {
+                const names = ["Andi", "Budi", "Cici", "Dedi", "Evi", "Fani", "Gani", "Hadi", "Indah", "Joko", "Kiki", "Lani", "Mira", "Novi", "Oki", "Puji", "Qori", "Rian", "Sari", "Toni", "Uli", "Vivi", "Wawan", "Yayan", "Zaki"];
+                const instansiList = ["Kemenkeu", "Bappenas", "KemenDagri", "Kemenkumham", "Kemendikbud", "Kementerian ESDM", "Kementerian Perhubungan"];
+                const golList = ["Gol. II", "Gol. III", "Gol. IV"];
+                const jabatanList = ["Pranata Komputer", "Perencana", "Analisis Anggaran", "Legal Officer", "Widyaiswara"];
+                
+                const initialApps = [];
+                const targets = {
+                    '2020': { reg: 5, ver: 3, rej: 2, pen: 0 },
+                    '2021': { reg: 10, ver: 9, rej: 1, pen: 0 },
+                    '2022': { reg: 16, ver: 11, rej: 5, pen: 0 },
+                    '2023': { reg: 12, ver: 8, rej: 4, pen: 0 },
+                    '2024': { reg: 20, ver: 14, rej: 6, pen: 0 },
+                    '2025': { reg: 7, ver: 5, rej: 2, pen: 0 },
+                    '2026': { reg: 9, ver: 3, rej: 2, pen: 4 }
+                };
+                
+                let nameIdx = 0;
+                Object.keys(targets).forEach(year => {
+                    const t = targets[year];
+                    for (let i = 0; i < t.reg; i++) {
+                        const name = names[nameIdx % names.length] + " " + (Math.floor(nameIdx / names.length) + 1);
+                        nameIdx++;
+                        
+                        let status = 'Pending';
+                        if (i < t.ver) {
+                            status = 'Verified';
+                        } else if (i < t.ver + t.rej) {
+                            status = 'Unverified';
+                        }
+                        
+                        initialApps.push({
+                            nama: name,
+                            email: name.toLowerCase().replace(" ", "") + "@gmail.com",
+                            hp: "0812" + Math.floor(10000000 + Math.random() * 90000000),
+                            instansi: instansiList[Math.floor(Math.random() * instansiList.length)],
+                            nip: Math.floor(100000 + Math.random() * 900000).toString(),
+                            gol: golList[Math.floor(Math.random() * golList.length)],
+                            jabatan: jabatanList[Math.floor(Math.random() * jabatanList.length)],
+                            surat: name.toLowerCase().replace(" ", "") + "_surat.pdf",
+                            formulir: name.toLowerCase().replace(" ", "") + "_formulir.pdf",
+                            cv: name.toLowerCase().replace(" ", "") + "_cv.pdf",
+                            toefl: name.toLowerCase().replace(" ", "") + "_toefl.pdf",
+                            tahun: year,
+                            status: status
+                        });
+                    }
+                });
+                
+                localStorage.setItem('asn_applications', JSON.stringify(initialApps));
+                localStorage.setItem('asn_applications_seeded_v6', 'true');
+            }
+
+            if (!localStorage.getItem('uploaded_scholarships_seeded')) {
+                const countries = ["Jepang", "Inggris", "Amerika", "Australia", "Jerman", "Korea", "Singapura", "Thailand", "Vietnam", "Malaysia"];
+                const titles = [
+                    "Beasiswa Pemerintah Monbukagakusho",
+                    "Beasiswa Chevening Leadership",
+                    "Beasiswa Fulbright Postgraduate",
+                    "Beasiswa Australia Awards (AAS)",
+                    "Beasiswa DAAD Master Study",
+                    "Beasiswa Korean Government (KGSP)",
+                    "Beasiswa Nanyang President",
+                    "Beasiswa Thailand Queen's Cup",
+                    "Beasiswa Magister Publik Vietnam",
+                    "Beasiswa Khazanah Malaysia"
+                ];
+                
+                const initialOffers = [];
+                const targets = {
+                    '2020': 6,
+                    '2021': 8,
+                    '2022': 13,
+                    '2023': 10,
+                    '2024': 18,
+                    '2025': 5,
+                    '2026': 6
+                };
+                
+                let offerIdx = 0;
+                Object.keys(targets).forEach(year => {
+                    const count = targets[year];
+                    for (let i = 0; i < count; i++) {
+                        const country = countries[offerIdx % countries.length];
+                        const title = titles[offerIdx % titles.length] + " " + country;
+                        offerIdx++;
+                        initialOffers.push({
+                            judul: title,
+                            periode: (1 + Math.floor(Math.random() * 3)) + " Tahun",
+                            negara: country,
+                            kuantitas: (5 + Math.floor(Math.random() * 20)) + " ASN",
+                            persyaratan: "IPK > 3.0, TOEFL > 500",
+                            detail: "Beasiswa studi lanjut di negara " + country + " untuk ASN berprestasi.",
+                            tahun: year
+                        });
+                    }
+                });
+                
+                localStorage.setItem('uploaded_scholarships', JSON.stringify(initialOffers));
+                localStorage.setItem('uploaded_scholarships_seeded', 'true');
+            }
+
+            // 1. Ambil data dari localStorage
+            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
+            const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
+
+            // 2. Hitung Total Tawaran Beasiswa (Hanya yang aktif / tahun 2026)
+            let openOffers = 4; // 4 penawaran default statis untuk tahun 2026
+            offers.forEach(offer => {
+                const year = offer.tahun || '2026';
+                if (year === '2026') {
+                    openOffers++;
+                }
+            });
+            document.getElementById('total-tawaran-val').textContent = openOffers;
+
+            // 3. Hitung pendaftaran ASN aktif (statis + dinamis) per tahun untuk Line Chart
+            const lineYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+            const defaultStaticRows = [
+                { id: 1, tahun: '2025', status: 'Verified' },
+                { id: 2, tahun: '2025', status: 'Unverified' },
+                { id: 3, tahun: '2024', status: 'Verified' },
+                { id: 4, tahun: '2024', status: 'Unverified' },
+                { id: 5, tahun: '2023', status: 'Verified' },
+                { id: 6, tahun: '2023', status: 'Verified' },
+                { id: 7, tahun: '2022', status: 'Unverified' },
+                { id: 8, tahun: '2022', status: 'Verified' },
+                { id: 9, tahun: '2021', status: 'Unverified' },
+                { id: 10, tahun: '2021', status: 'Unverified' },
+                { id: 11, tahun: '2020', status: 'Unverified' },
+                { id: 12, tahun: '2020', status: 'Verified' }
+            ];
+
+            const diterimaPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            const ditolakPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            const prosesPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+
+            defaultStaticRows.forEach(row => {
+                if (!deletedStatics.includes(row.id)) {
+                    const currentStatus = staticStatuses[row.id] || row.status;
+                    if (currentStatus === 'Verified') {
+                        diterimaPerYear[row.tahun]++;
+                    } else if (currentStatus === 'Unverified') {
+                        ditolakPerYear[row.tahun]++;
+                    } else {
+                        prosesPerYear[row.tahun]++;
+                    }
+                }
+            });
+
+            apps.forEach(app => {
+                const appTahun = app.tahun || '2026';
+                const currentStatus = app.status || 'Pending';
+                
+                if (diterimaPerYear[appTahun] === undefined) {
+                    diterimaPerYear[appTahun] = 0;
+                    ditolakPerYear[appTahun] = 0;
+                    prosesPerYear[appTahun] = 0;
+                }
+
+                if (currentStatus === 'Verified') {
+                    diterimaPerYear[appTahun]++;
+                } else if (currentStatus === 'Unverified') {
+                    ditolakPerYear[appTahun]++;
+                } else {
+                    prosesPerYear[appTahun]++;
+                }
+            });
+
+            const diterimaData = lineYears.map(y => diterimaPerYear[y] || 0);
+            const ditolakData = lineYears.map(y => ditolakPerYear[y] || 0);
+            const prosesData = lineYears.map(y => prosesPerYear[y] || 0);
+
+            // 4. Inisialisasi Line Chart (Jumlah ASN Mendaftar & Berhasil per Tahun)
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            
+            const lineChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: lineYears,
+                    datasets: [
+                        {
+                            label: 'Diterima',
+                            data: diterimaData,
+                            borderColor: '#1cc63e',
+                            backgroundColor: '#1cc63e',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'circle',
+                            pointRadius: 5,
+                            pointBackgroundColor: '#1cc63e'
+                        },
+                        {
+                            label: 'Tidak Diterima',
+                            data: ditolakData,
+                            borderColor: '#e53935',
+                            backgroundColor: '#e53935',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'triangle',
+                            pointRadius: 6,
+                            pointBackgroundColor: '#e53935'
+                        },
+                        {
+                            label: 'Masih Proses',
+                            data: prosesData,
+                            borderColor: '#0d6efd',
+                            backgroundColor: '#0d6efd',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'rectRot',
+                            pointRadius: 6,
+                            pointBackgroundColor: '#0d6efd'
+                        }
+                    ]
+                },
+                options: {
+                    onClick: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const activeElement = activeElements[0];
+                            const index = activeElement.index;
+                            const year = lineChart.data.labels[index];
+                            window.location.href = `verifikasi.html?tahun=${year}`;
+                        } else {
+                            window.location.href = 'verifikasi.html';
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: 600,
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: () => '' // Sembunyikan judul tooltip (tahun di bagian atas kotak)
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: 500
+                                }
+                            },
+                            grid: {
+                                color: '#e0e0e0'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: 600
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 5. Inisialisasi Bar Chart (Total Tawaran Beasiswa per Tahun)
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            
+            const barYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+            const defaultStaticOffers = [
+                { id: 1, tahun: '2025' },
+                { id: 2, tahun: '2025' },
+                { id: 3, tahun: '2024' },
+                { id: 4, tahun: '2024' },
+                { id: 5, tahun: '2023' },
+                { id: 6, tahun: '2023' },
+                { id: 7, tahun: '2022' },
+                { id: 8, tahun: '2022' },
+                { id: 9, tahun: '2021' },
+                { id: 10, tahun: '2021' },
+                { id: 11, tahun: '2020' },
+                { id: 12, tahun: '2020' }
+            ];
+
+            const offersPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            defaultStaticOffers.forEach(offer => {
+                offersPerYear[offer.tahun]++;
+            });
+
+            offers.forEach(offer => {
+                const offerTahun = offer.tahun || '2026'; // Default to 2026 for new ones
+                if (offersPerYear[offerTahun] !== undefined) {
+                    offersPerYear[offerTahun]++;
+                } else {
+                    offersPerYear[offerTahun] = 1;
+                }
+            });
+
+            const barChartData = barYears.map(y => offersPerYear[y] || 0);
+
+            const barChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: barYears,
+                    datasets: [{
+                        data: barChartData,
+                        backgroundColor: '#28558c',
+                        hoverBackgroundColor: '#1d3e66',
+                        borderRadius: 4,
+                        barThickness: 32
+                    }]
+                },
+                options: {
+                    onClick: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const activeElement = activeElements[0];
+                            const index = activeElement.index;
+                            const year = barChart.data.labels[index];
+                            window.location.href = `unggah_tawaran.html?tahun=${year}`;
+                        } else {
+                            window.location.href = 'unggah_tawaran.html';
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: 500
+                                }
+                            },
+                            grid: {
+                                color: '#e0e0e0'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: 600
+                                }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Prevent chart clicks from bubbling up to parent card redirects
+            document.getElementById('lineChart').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+            document.getElementById('barChart').addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+    </script>
+
+    <style>
+        /* DASHBOARD GRID STYLING */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 16px;
+            width: 100%;
+        }
+        .dashboard-column {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .metric-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333333;
+        }
+        .metric-value-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a365d;
+        }
+        .metric-badge {
+            background: #e2f4e9;
+            color: #28a745;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+        }
+        .chart-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .tall-chart-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tall-chart-card .chart-container {
+            flex: 1;
+            height: 100% !important;
+            min-height: 380px;
+        }
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+    </style>
+
+</body>
+
+</html>

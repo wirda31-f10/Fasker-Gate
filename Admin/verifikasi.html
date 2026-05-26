@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi ASN - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard.css">
+    <style>
+        .custom-context-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1.5px solid #f0c56b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            padding: 4px 0;
+            z-index: 10000;
+            min-width: 150px;
+            display: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d78b10;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: #FDF5E6;
+            color: #b0700a;
+        }
+
+        .status-btn.verified {
+            background: #1cc63e !important;
+            color: #fff !important;
+        }
+        .status-btn.unverified {
+            background: #e53935 !important;
+            color: #fff !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../Beranda/beranda.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="admin.html" class="menu-item">
+                <span class="icon">⊞</span> Dashboard
+            </a>
+            <a href="verifikasi.html" class="menu-item active">
+                <span class="icon">📋</span> Verifikasi
+            </a>
+            <a href="unggah_tawaran.html" class="menu-item">
+                <span class="icon">📤</span> Unggah Tawaran
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang Admin Fasker!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    Pusat Fasker
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb" style="margin-bottom: 12px;">Verifikasi ASN</div>
+
+            <!-- FILTER BAR -->
+            <div class="filter-container" style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 16px;">
+                <div class="filter-group">
+                    <label for="tahun-select" style="font-size: 11px; font-weight: 600; color: #555; display: block; margin-bottom: 4px;">Filter Tahun</label>
+                    <select id="tahun-select" onchange="renderTable()" style="height: 32px; border-radius: 20px; border: 1.5px solid rgba(207, 132, 10, 0.3); padding: 0 16px; outline: none; font-family: inherit; font-size: 12px; min-width: 120px;">
+                        <option value="">Semua Tahun</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="verifikasi-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Asal Instansi</th>
+                            <th>Pangkat/Gol</th>
+                            <th>NIP</th>
+                            <th>Tahun</th>
+                            <th>Detail</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verifikasi-tbody">
+                        <tr data-type="static" data-id="1" data-tahun="2025" onclick="showStaticDetails(1, event)" style="cursor: pointer;">
+                            <td>1.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2025" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified" onclick="toggleStaticStatus(this)">Verified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="2" data-tahun="2025" onclick="showStaticDetails(2, event)" style="cursor: pointer;">
+                            <td>2.</td>
+                            <td><input type="text" class="table-input" value="Rian" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Bappenas" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. II" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="765432" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2025" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="3" data-tahun="2024" onclick="showStaticDetails(3, event)" style="cursor: pointer;">
+                            <td>3.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2024" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified" onclick="toggleStaticStatus(this)">Verified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="4" data-tahun="2024" onclick="showStaticDetails(4, event)" style="cursor: pointer;">
+                            <td>4.</td>
+                            <td><input type="text" class="table-input" value="Rizky" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Kemenkeu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. IV" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="345678" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2024" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="5" data-tahun="2023" onclick="showStaticDetails(5, event)" style="cursor: pointer;">
+                            <td>5.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2023" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="6" data-tahun="2023" onclick="showStaticDetails(6, event)" style="cursor: pointer;">
+                            <td>6.</td>
+                            <td><input type="text" class="table-input" value="Rafi" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Kemenkumham" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="876543" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2023" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified" onclick="toggleStaticStatus(this)">Verified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="7" data-tahun="2022" onclick="showStaticDetails(7, event)" style="cursor: pointer;">
+                            <td>7.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2022" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="8" data-tahun="2022" onclick="showStaticDetails(8, event)" style="cursor: pointer;">
+                            <td>8.</td>
+                            <td><input type="text" class="table-input" value="Rama" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Kemendikbud" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. II" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="543210" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2022" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified" onclick="toggleStaticStatus(this)">Verified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="9" data-tahun="2021" onclick="showStaticDetails(9, event)" style="cursor: pointer;">
+                            <td>9.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2021" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="10" data-tahun="2021" onclick="showStaticDetails(10, event)" style="cursor: pointer;">
+                            <td>10.</td>
+                            <td><input type="text" class="table-input" value="Rehan" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Kementerian ESDM" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="123456" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2021" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="11" data-tahun="2020" onclick="showStaticDetails(11, event)" style="cursor: pointer;">
+                            <td>11.</td>
+                            <td><input type="text" class="table-input" value="Ranu" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="KemenDagri" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. III" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="234567" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2020" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified" onclick="toggleStaticStatus(this)">Unverified</button></td>
+                        </tr>
+                        <tr data-type="static" data-id="12" data-tahun="2020" onclick="showStaticDetails(12, event)" style="cursor: pointer;">
+                            <td>12.</td>
+                            <td><input type="text" class="table-input" value="Roni" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Kementerian Perhubungan" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="Gol. IV" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="987654" readonly style="pointer-events: none;"></td>
+                            <td><input type="text" class="table-input" value="2020" readonly style="pointer-events: none;"></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified" onclick="toggleStaticStatus(this)">Verified</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        const defaultStaticRows = [
+            { id: 1, tahun: '2025', status: 'Verified' },
+            { id: 2, tahun: '2025', status: 'Pending' },
+            { id: 3, tahun: '2024', status: 'Verified' },
+            { id: 4, tahun: '2024', status: 'Pending' },
+            { id: 5, tahun: '2023', status: 'Pending' },
+            { id: 6, tahun: '2023', status: 'Verified' },
+            { id: 7, tahun: '2022', status: 'Pending' },
+            { id: 8, tahun: '2022', status: 'Verified' },
+            { id: 9, tahun: '2021', status: 'Unverified' },
+            { id: 10, tahun: '2021', status: 'Unverified' },
+            { id: 11, tahun: '2020', status: 'Pending' },
+            { id: 12, tahun: '2020', status: 'Verified' }
+        ];
+
+        function renderTable() {
+            const tbody = document.getElementById('verifikasi-tbody');
+            const selectedTahun = document.getElementById('tahun-select').value;
+            
+            // Check deleted static rows on load
+            const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
+            const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
+            
+            const staticRows = Array.from(tbody.querySelectorAll('tr[data-type="static"]'));
+            staticRows.forEach(row => {
+                const id = parseInt(row.getAttribute('data-id'));
+                const tahun = row.getAttribute('data-tahun');
+                
+                const matchesDeleted = deletedStatics.includes(id);
+                const matchesTahun = !selectedTahun || tahun === selectedTahun;
+
+                if (matchesDeleted || !matchesTahun) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                    
+                    // Render status cell dynamically
+                    const statusCell = row.cells[7];
+                    const status = staticStatuses[id] || defaultStaticRows.find(r => r.id === id).status;
+                    
+                    if (status === 'Verified') {
+                        statusCell.innerHTML = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Verified</button>`;
+                    } else if (status === 'Unverified') {
+                        statusCell.innerHTML = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Unverified</button>`;
+                    } else {
+                        statusCell.innerHTML = `
+                            <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                                <button class="status-btn" style="background: #0d6efd; color: #fff; padding: 4px 12px;" onclick="setStaticRowStatus(${id}, 'Verified', event)">Verifikasi</button>
+                                <button class="status-btn" style="background: #E9B242; color: #fff; padding: 4px 12px;" onclick="setStaticRowStatus(${id}, 'Unverified', event)">Tolak</button>
+                            </div>
+                        `;
+                    }
+                }
+            });
+            
+            // Remove any dynamically appended rows
+            const staticRowCount = staticRows.length;
+            while (tbody.rows.length > staticRowCount) {
+                tbody.deleteRow(staticRowCount);
+            }
+            
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            apps.forEach((app, idx) => {
+                const appTahun = app.tahun || '2026';
+                if (selectedTahun && appTahun !== selectedTahun) {
+                    return; // Skip if year doesn't match filter
+                }
+
+                const row = document.createElement('tr');
+                row.setAttribute('data-type', 'dynamic');
+                row.setAttribute('data-index', idx);
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', (e) => showDynamicDetails(idx, e));
+                
+                let statusHtml = '';
+                if (app.status === 'Verified') {
+                    statusHtml = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Verified</button>`;
+                } else if (app.status === 'Unverified') {
+                    statusHtml = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Unverified</button>`;
+                } else {
+                    statusHtml = `
+                        <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+                            <button class="status-btn" style="background: #0d6efd; color: #fff; padding: 4px 12px;" onclick="setDynamicRowStatus(${idx}, 'Verified', event)">Verifikasi</button>
+                            <button class="status-btn" style="background: #E9B242; color: #fff; padding: 4px 12px;" onclick="setDynamicRowStatus(${idx}, 'Unverified', event)">Tolak</button>
+                        </div>
+                    `;
+                }
+
+                row.innerHTML = `
+                    <td></td>
+                    <td><input type="text" class="table-input" value="${app.nama}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${app.instansi}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${app.gol}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${app.nip}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${appTahun}" readonly style="pointer-events: none;"></td>
+                    <td>
+                        <button class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                    </td>
+                    <td>${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Re-sequence the row numbers for all visible rows
+            let visibleIndex = 1;
+            Array.from(tbody.rows).forEach(r => {
+                if (r.style.display !== 'none') {
+                    r.cells[0].textContent = `${visibleIndex++}.`;
+                }
+            });
+        }
+
+        function setStaticRowStatus(id, newStatus, event) {
+            if (event) event.stopPropagation();
+            const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
+            staticStatuses[id] = newStatus;
+            localStorage.setItem('static_row_statuses', JSON.stringify(staticStatuses));
+            renderTable();
+        }
+
+        function setDynamicRowStatus(index, newStatus, event) {
+            if (event) event.stopPropagation();
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            if (apps[index]) {
+                apps[index].status = newStatus;
+                localStorage.setItem('asn_applications', JSON.stringify(apps));
+                renderTable();
+            }
+        }
+
+        function deleteRow(row) {
+            const type = row.getAttribute('data-type');
+            if (type === 'dynamic') {
+                const idx = parseInt(row.getAttribute('data-index'));
+                const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+                apps.splice(idx, 1);
+                localStorage.setItem('asn_applications', JSON.stringify(apps));
+                renderTable();
+            } else if (type === 'static') {
+                const id = parseInt(row.getAttribute('data-id'));
+                const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
+                if (!deletedStatics.includes(id)) {
+                    deletedStatics.push(id);
+                    localStorage.setItem('deleted_static_rows', JSON.stringify(deletedStatics));
+                }
+                renderTable();
+            }
+        }
+
+        function showContextMenu(x, y, row) {
+            let contextMenu = document.getElementById('context-menu');
+            if (!contextMenu) {
+                contextMenu = document.createElement('div');
+                contextMenu.id = 'context-menu';
+                contextMenu.className = 'custom-context-menu';
+                contextMenu.innerHTML = `
+                    <div class="context-menu-item" id="btn-hapus-asn">
+                        <span style="font-size: 14px;">🗑</span> Hapus data ASN
+                    </div>
+                `;
+                document.body.appendChild(contextMenu);
+            }
+            
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+            contextMenu.style.display = 'block';
+            
+            const btnHapus = document.getElementById('btn-hapus-asn');
+            btnHapus.onclick = () => {
+                deleteRow(row);
+                contextMenu.style.display = 'none';
+            };
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for ?tahun=YYYY URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryTahun = urlParams.get('tahun');
+            if (queryTahun) {
+                document.getElementById('tahun-select').value = queryTahun;
+            }
+
+            renderTable();
+
+            const tbody = document.getElementById('verifikasi-tbody');
+            tbody.addEventListener('contextmenu', (e) => {
+                // Find if target is inside the name column cell (index 1)
+                const cell = e.target.closest('td');
+                if (!cell) return;
+                
+                const cellIndex = cell.cellIndex;
+                if (cellIndex === 1) { // Nama column
+                    e.preventDefault();
+                    showContextMenu(e.pageX, e.pageY, cell.parentElement);
+                }
+            });
+
+            document.addEventListener('click', () => {
+                const menu = document.getElementById('context-menu');
+                if (menu) menu.style.display = 'none';
+            });
+            
+            document.addEventListener('scroll', () => {
+                const menu = document.getElementById('context-menu');
+                if (menu) menu.style.display = 'none';
+            });
+        });
+
+        function showStaticDetails(id, event) {
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            
+            const staticASNs = {
+                1: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                2: { nama: "Rian", email: "rian@gmail.com", instansi: "Bappenas", gol: "Gol. II", nip: "765432" },
+                3: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                4: { nama: "Rizky", email: "rizky@gmail.com", instansi: "Kemenkeu", gol: "Gol. IV", nip: "345678" },
+                5: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                6: { nama: "Rafi", email: "rafi@gmail.com", instansi: "Kemenkumham", gol: "Gol. III", nip: "876543" },
+                7: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                8: { nama: "Rama", email: "rama@gmail.com", instansi: "Kemendikbud", gol: "Gol. II", nip: "543210" },
+                9: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                10: { nama: "Rehan", email: "rehan@gmail.com", instansi: "Kementerian ESDM", gol: "Gol. III", nip: "123456" },
+                11: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                12: { nama: "Roni", email: "roni@gmail.com", instansi: "Kementerian Perhubungan", gol: "Gol. IV", nip: "987654" }
+            };
+
+            const selectedASN = staticASNs[id] || { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" };
+            
+            const mockASN = {
+                nama: selectedASN.nama,
+                email: selectedASN.email,
+                hp: "08123456789",
+                instansi: selectedASN.instansi,
+                nip: selectedASN.nip,
+                gol: selectedASN.gol,
+                jabatan: "Pranata Komputer",
+                surat: `${selectedASN.nama.toLowerCase()}_surat_permohonan.pdf`,
+                formulir: `${selectedASN.nama.toLowerCase()}_formulir_lamaran.pdf`,
+                cv: `${selectedASN.nama.toLowerCase()}_cv.pdf`,
+                toefl: `${selectedASN.nama.toLowerCase()}_toefl.pdf`
+            };
+            
+            displayDetailModal(mockASN, "Statis (Bawaan)");
+        }
+
+        function showDynamicDetails(index, event) {
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            const app = apps[index];
+            if (!app) return;
+
+            displayDetailModal(app, "Dinamis (Pendaftaran)");
+        }
+
+        function displayDetailModal(asn, tipeData) {
+            const body = document.getElementById('detail-modal-body');
+            body.innerHTML = `
+                <div style="display:grid; grid-template-columns: 120px 1fr; row-gap: 8px; margin-bottom: 16px; font-family:'Montserrat', sans-serif;">
+                    <strong>Nama:</strong> <span>${asn.nama}</span>
+                    <strong>Email:</strong> <span>${asn.email || 'asn@gmail.com'}</span>
+                    <strong>No. HP:</strong> <span>${asn.hp || '08123456789'}</span>
+                    <strong>Instansi:</strong> <span>${asn.instansi}</span>
+                    <strong>NIP:</strong> <span>${asn.nip}</span>
+                    <strong>Pangkat/Gol:</strong> <span>${asn.gol}</span>
+                    <strong>Jabatan:</strong> <span>${asn.jabatan || 'Pranata Komputer'}</span>
+                    <strong>Tipe Data:</strong> <span style="color:#d78b10; font-weight:700;">${tipeData}</span>
+                </div>
+                <div style="border-top: 1px solid #eee; padding-top: 12px; font-family:'Montserrat', sans-serif;">
+                    <strong style="display:block; margin-bottom: 8px; color: #1a365d;">Dokumen Sumber Pendaftaran:</strong>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.surat}')">📄 Surat Permohonan: <span style="text-decoration:underline;">${asn.surat}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.formulir}')">📄 Formulir Lamaran: <span style="text-decoration:underline;">${asn.formulir}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.cv}')">📄 Curriculum Vitae (CV): <span style="text-decoration:underline;">${asn.cv}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.toefl}')">📄 Sertifikat TOEFL: <span style="text-decoration:underline;">${asn.toefl}</span></a>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.getElementById('detail-modal');
+            modal.classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+    </script>
+
+    <!-- DETAIL MODAL OVERLAY -->
+    <div id="detail-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box" style="width: 480px;">
+            <div class="custom-modal-header" style="background:#FDF5E6; color:#1a365d; font-weight:700;">
+                🔍 Detail Dokumen Pemohon
+            </div>
+            <div class="custom-modal-body" id="detail-modal-body" style="font-weight: 500; font-size: 13px; line-height: 1.6; text-align: left; padding: 24px;">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="custom-modal-footer" style="padding: 0 24px 20px;">
+                <button class="custom-modal-btn" onclick="closeDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

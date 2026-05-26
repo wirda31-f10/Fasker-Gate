@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unggah Tawaran - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard.css">
+    <style>
+        .custom-context-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1.5px solid #f0c56b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            padding: 4px 0;
+            z-index: 10000;
+            min-width: 150px;
+            display: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d78b10;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: #FDF5E6;
+            color: #b0700a;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../Beranda/beranda.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="admin.html" class="menu-item">
+                <span class="icon">⊞</span> Dashboard
+            </a>
+            <a href="verifikasi.html" class="menu-item">
+                <span class="icon">📋</span> Verifikasi
+            </a>
+            <a href="unggah_tawaran.html" class="menu-item active">
+                <span class="icon">📤</span> Unggah Tawaran
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang Admin Fasker!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    Pusat Fasker
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb" style="margin-bottom: 12px;">Tawaran Beasiswa</div>
+
+            <!-- FILTER BAR & TAMBAH BUTTON CONTAINER -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; width: 100%;">
+                <div class="filter-container" style="display: flex; gap: 16px; align-items: center;">
+                    <div class="filter-group">
+                        <label for="tahun-select" style="font-size: 11px; font-weight: 600; color: #555; display: block; margin-bottom: 4px;">Filter Tahun</label>
+                        <select id="tahun-select" onchange="renderOfferTable()" style="height: 32px; border-radius: 20px; border: 1.5px solid rgba(207, 132, 10, 0.3); padding: 0 16px; outline: none; font-family: inherit; font-size: 12px; min-width: 120px;">
+                            <option value="">Semua Tahun</option>
+                            <option value="2020">2020</option>
+                            <option value="2021">2021</option>
+                            <option value="2022">2022</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-tambah" style="height: 32px; display: flex; align-items: center; justify-content: center; gap: 4px;" onclick="window.location.href='tambah_tawaran.html'"><span>+</span><span>Tambah</span></button>
+            </div>
+
+            <div class="table-container">
+                <table class="verifikasi-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Beasiswa</th>
+                            <th>Periode</th>
+                            <th>Persyaratan</th>
+                            <th>Negara</th>
+                            <th>Kuantitas</th>
+                            <th>Tahun</th>
+                            <th>Detail</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="unggah-tbody">
+                        <tr data-id="1" data-tahun="2025" onclick="showStaticOfferDetails(1, event)" style="cursor: pointer;">
+                            <td>1.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Thailand)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Thailand</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2025</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn verified">Berjalan</button></td>
+                        </tr>
+                        <tr data-id="2" data-tahun="2025" onclick="showStaticOfferDetails(2, event)" style="cursor: pointer;">
+                            <td>2.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Vietnam)</span></td>
+                            <td><span class="table-data-text">2 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Vietnam</span></td>
+                            <td><span class="table-data-text">15 ASN</span></td>
+                            <td><span class="table-data-text">2025</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="3" data-tahun="2024" onclick="showStaticOfferDetails(3, event)" style="cursor: pointer;">
+                            <td>3.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Thailand)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Thailand</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2024</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="4" data-tahun="2024" onclick="showStaticOfferDetails(4, event)" style="cursor: pointer;">
+                            <td>4.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Singapura)</span></td>
+                            <td><span class="table-data-text">3 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Singapura</span></td>
+                            <td><span class="table-data-text">10 ASN</span></td>
+                            <td><span class="table-data-text">2024</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="5" data-tahun="2023" onclick="showStaticOfferDetails(5, event)" style="cursor: pointer;">
+                            <td>5.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Malaysia)</span></td>
+                            <td><span class="table-data-text">2 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Malaysia</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2023</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="6" data-tahun="2023" onclick="showStaticOfferDetails(6, event)" style="cursor: pointer;">
+                            <td>6.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Kamboja)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Kamboja</span></td>
+                            <td><span class="table-data-text">5 ASN</span></td>
+                            <td><span class="table-data-text">2023</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="7" data-tahun="2022" onclick="showStaticOfferDetails(7, event)" style="cursor: pointer;">
+                            <td>7.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Amerika)</span></td>
+                            <td><span class="table-data-text">3 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Amerika</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2022</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="8" data-tahun="2022" onclick="showStaticOfferDetails(8, event)" style="cursor: pointer;">
+                            <td>8.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Inggris)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Inggris</span></td>
+                            <td><span class="table-data-text">12 ASN</span></td>
+                            <td><span class="table-data-text">2022</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="9" data-tahun="2021" onclick="showStaticOfferDetails(9, event)" style="cursor: pointer;">
+                            <td>9.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Australia)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Australia</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2021</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="10" data-tahun="2021" onclick="showStaticOfferDetails(10, event)" style="cursor: pointer;">
+                            <td>10.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Selandia Baru)</span></td>
+                            <td><span class="table-data-text">2 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Selandia Baru</span></td>
+                            <td><span class="table-data-text">8 ASN</span></td>
+                            <td><span class="table-data-text">2021</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="11" data-tahun="2020" onclick="showStaticOfferDetails(11, event)" style="cursor: pointer;">
+                            <td>11.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Korea)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Korea</span></td>
+                            <td><span class="table-data-text">20 ASN</span></td>
+                            <td><span class="table-data-text">2020</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                        <tr data-id="12" data-tahun="2020" onclick="showStaticOfferDetails(12, event)" style="cursor: pointer;">
+                            <td>12.</td>
+                            <td><span class="table-data-text">Ranu (Beasiswa Jepang)</span></td>
+                            <td><span class="table-data-text">1 Tahun</span></td>
+                            <td><span class="table-data-text">-</span></td>
+                            <td><span class="table-data-text">Jepang</span></td>
+                            <td><span class="table-data-text">25 ASN</span></td>
+                            <td><span class="table-data-text">2020</span></td>
+                            <td>
+                                <button class="btn-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                </button>
+                            </td>
+                            <td><button class="status-btn unverified">Selesai</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        function calculateOfferStatus(tahun, periode) {
+            const startYear = parseInt(tahun);
+            const duration = parseInt(periode) || 1;
+            const endYear = startYear + duration;
+            if (endYear <= 2026) {
+                return 'Selesai';
+            } else {
+                return 'Berjalan';
+            }
+        }
+
+        function getSisaKuota(judul, kuantitas) {
+            const totalQuota = parseInt(kuantitas) || 0;
+            const apps = JSON.parse(localStorage.getItem('scholarship_applications') || '[]');
+            const appliedCount = apps.filter(app => app.judul === judul).length;
+            const unit = kuantitas.replace(/[0-9]/g, '').trim() || 'ASN';
+            return `${totalQuota - appliedCount} / ${totalQuota} ${unit}`;
+        }
+
+        function renderOfferTable() {
+            const tbody = document.getElementById('unggah-tbody');
+            const selectedTahun = document.getElementById('tahun-select').value;
+            
+            const staticRows = Array.from(tbody.querySelectorAll('tr[data-id]'));
+            staticRows.forEach(row => {
+                const tahun = row.getAttribute('data-tahun');
+                const matchesTahun = !selectedTahun || tahun === selectedTahun;
+                if (matchesTahun) {
+                    row.style.display = '';
+                    
+                    // Calculate status dynamically for static row
+                    const periodeCell = row.cells[2];
+                    const statusCell = row.cells[8];
+                    const kuantitasCell = row.cells[5];
+                    const judulCell = row.cells[1];
+                    const periodeText = periodeCell.textContent.trim();
+                    const status = calculateOfferStatus(tahun, periodeText);
+                    
+                    if (status === 'Berjalan') {
+                        statusCell.innerHTML = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Berjalan</button>`;
+                    } else {
+                        statusCell.innerHTML = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Selesai</button>`;
+                    }
+
+                    // Display remaining quota dynamically for static row
+                    const totalKuantitas = kuantitasCell.getAttribute('data-original-kuantitas') || kuantitasCell.textContent.trim();
+                    if (!kuantitasCell.getAttribute('data-original-kuantitas')) {
+                        kuantitasCell.setAttribute('data-original-kuantitas', totalKuantitas);
+                    }
+                    const judulText = judulCell.textContent.trim();
+                    const sisaText = getSisaKuota(judulText, totalKuantitas);
+                    kuantitasCell.innerHTML = `<span class="table-data-text">${sisaText}</span>`;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Remove any dynamically appended rows
+            const staticRowCount = staticRows.length;
+            while (tbody.rows.length > staticRowCount) {
+                tbody.deleteRow(staticRowCount);
+            }
+
+            // Load and filter dynamic rows
+            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            let visibleIndex = staticRowCount + 1;
+            
+            offers.forEach((offer, idx) => {
+                const offerTahun = offer.tahun || '2024';
+                if (selectedTahun && offerTahun !== selectedTahun) {
+                    return; // Skip if year doesn't match filter
+                }
+
+                const status = calculateOfferStatus(offerTahun, offer.periode);
+                let statusHtml = '';
+                if (status === 'Berjalan') {
+                    statusHtml = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Berjalan</button>`;
+                } else {
+                    statusHtml = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Selesai</button>`;
+                }
+
+                const sisaText = getSisaKuota(offer.judul, offer.kuantitas);
+                const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
+                row.addEventListener('click', (e) => showDynamicOfferDetails(idx, e));
+                row.innerHTML = `
+                    <td>${visibleIndex++}.</td>
+                    <td><span class="table-data-text">${offer.judul}</span></td>
+                    <td><span class="table-data-text">${offer.periode}</span></td>
+                    <td><span class="table-data-text">${offer.persyaratan}</span></td>
+                    <td><span class="table-data-text">${offer.negara}</span></td>
+                    <td><span class="table-data-text">${sisaText}</span></td>
+                    <td><span class="table-data-text">${offerTahun}</span></td>
+                    <td>
+                        <button class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                    </td>
+                    <td>${statusHtml}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Re-sequence numbers of visible rows
+            let numbering = 1;
+            Array.from(tbody.rows).forEach(r => {
+                if (r.style.display !== 'none') {
+                    r.cells[0].textContent = `${numbering++}.`;
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for ?tahun=YYYY URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const queryTahun = urlParams.get('tahun');
+            if (queryTahun) {
+                document.getElementById('tahun-select').value = queryTahun;
+            }
+
+            renderOfferTable();
+        });
+
+        function showStaticOfferDetails(id, event) {
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            
+            const staticOffers = {
+                1: {
+                    judul: "Ranu (Beasiswa Thailand)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Thailand",
+                    kuantitas: "20 ASN",
+                    tahun: "2025",
+                    detail: "Pelatihan pengembangan kapasitas tata kelola perkotaan di Thailand.",
+                    status: "Berjalan"
+                },
+                2: {
+                    judul: "Ranu (Beasiswa Vietnam)",
+                    periode: "2 Tahun",
+                    persyaratan: "-",
+                    negara: "Vietnam",
+                    kuantitas: "15 ASN",
+                    tahun: "2025",
+                    detail: "Beasiswa studi banding sistem pertanian modern di Vietnam.",
+                    status: "Selesai"
+                },
+                3: {
+                    judul: "Ranu (Beasiswa Thailand)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Thailand",
+                    kuantitas: "20 ASN",
+                    tahun: "2024",
+                    detail: "Pelatihan pengembangan kapasitas tata kelola perkotaan di Thailand.",
+                    status: "Selesai"
+                },
+                4: {
+                    judul: "Ranu (Beasiswa Singapura)",
+                    periode: "3 Tahun",
+                    persyaratan: "-",
+                    negara: "Singapura",
+                    kuantitas: "10 ASN",
+                    tahun: "2024",
+                    detail: "Beasiswa Magister Kebijakan Publik di National University of Singapore.",
+                    status: "Selesai"
+                },
+                5: {
+                    judul: "Ranu (Beasiswa Malaysia)",
+                    periode: "2 Tahun",
+                    persyaratan: "-",
+                    negara: "Malaysia",
+                    kuantitas: "20 ASN",
+                    tahun: "2023",
+                    detail: "Beasiswa Magister Manajemen Publik di Universiti Malaya.",
+                    status: "Selesai"
+                },
+                6: {
+                    judul: "Ranu (Beasiswa Kamboja)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Kamboja",
+                    kuantitas: "5 ASN",
+                    tahun: "2023",
+                    detail: "Pelatihan kerja sama sosial-budaya ASEAN di Kamboja.",
+                    status: "Selesai"
+                },
+                7: {
+                    judul: "Ranu (Beasiswa Amerika)",
+                    periode: "3 Tahun",
+                    persyaratan: "-",
+                    negara: "Amerika",
+                    kuantitas: "20 ASN",
+                    tahun: "2022",
+                    detail: "Program Fellowship Kebijakan Publik di Harvard Kennedy School.",
+                    status: "Selesai"
+                },
+                8: {
+                    judul: "Ranu (Beasiswa Inggris)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Inggris",
+                    kuantitas: "12 ASN",
+                    tahun: "2022",
+                    detail: "Pelatihan Tata Kelola Pemerintahan Daerah di Universitas Oxford.",
+                    status: "Selesai"
+                },
+                9: {
+                    judul: "Ranu (Beasiswa Australia)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Australia",
+                    kuantitas: "20 ASN",
+                    tahun: "2021",
+                    detail: "Pelatihan Tata Kelola Publik Internasional di Australia.",
+                    status: "Selesai"
+                },
+                10: {
+                    judul: "Ranu (Beasiswa Selandia Baru)",
+                    periode: "2 Tahun",
+                    persyaratan: "-",
+                    negara: "Selandia Baru",
+                    kuantitas: "8 ASN",
+                    tahun: "2021",
+                    detail: "Beasiswa studi pascasarjana di Victoria University of Wellington.",
+                    status: "Selesai"
+                },
+                11: {
+                    judul: "Ranu (Beasiswa Korea)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Korea",
+                    kuantitas: "20 ASN",
+                    tahun: "2020",
+                    detail: "Pelatihan Sistem Pemerintahan Digital di Korea Selatan.",
+                    status: "Selesai"
+                },
+                12: {
+                    judul: "Ranu (Beasiswa Jepang)",
+                    periode: "1 Tahun",
+                    persyaratan: "-",
+                    negara: "Jepang",
+                    kuantitas: "25 ASN",
+                    tahun: "2020",
+                    detail: "Pelatihan Manajemen Logistik dan Transportasi di Tokyo."
+                }
+            };
+            
+            const offer = staticOffers[id];
+            if (!offer) return;
+            offer.status = calculateOfferStatus(offer.tahun, offer.periode);
+            displayOfferModal(offer, "Statis (Bawaan)");
+        }
+
+        function showDynamicOfferDetails(index, event) {
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            const offer = offers[index];
+            if (!offer) return;
+            
+            const calculatedStatus = calculateOfferStatus(offer.tahun || '2024', offer.periode);
+            const detailOffer = {
+                judul: offer.judul,
+                periode: offer.periode,
+                persyaratan: offer.persyaratan || '-',
+                negara: offer.negara,
+                kuantitas: offer.kuantitas || '20 ASN',
+                tahun: offer.tahun || '2024',
+                detail: offer.detail || '-',
+                status: calculatedStatus
+            };
+ 
+            displayOfferModal(detailOffer, "Dinamis (Diunggah)");
+        }
+
+        function displayOfferModal(offer, tipeData) {
+            const body = document.getElementById('detail-modal-body');
+            body.innerHTML = `
+                <div style="display:grid; grid-template-columns: 120px 1fr; row-gap: 8px; font-family:'Montserrat', sans-serif;">
+                    <strong>Judul Beasiswa:</strong> <span>${offer.judul}</span>
+                    <strong>Periode:</strong> <span>${offer.periode}</span>
+                    <strong>Negara:</strong> <span>${offer.negara}</span>
+                    <strong>Kuantitas:</strong> <span>${offer.kuantitas}</span>
+                    <strong>Tahun:</strong> <span>${offer.tahun}</span>
+                    <strong>Persyaratan:</strong> <span>${offer.persyaratan}</span>
+                    <strong>Status Program:</strong> <span style="font-weight:700; color:${offer.status === 'Berjalan' ? '#1cc63e' : '#666'};">${offer.status}</span>
+                    <strong>Tipe Data:</strong> <span style="color:#d78b10; font-weight:700;">${tipeData}</span>
+                </div>
+                <div style="border-top: 1px solid #eee; padding-top: 12px; margin-top: 12px; font-family:'Montserrat', sans-serif;">
+                    <strong style="display:block; margin-bottom: 8px; color: #1a365d;">Detail Deskripsi Beasiswa:</strong>
+                    <p style="font-size:12px; color:#555; line-height:1.5; margin:0; text-align:justify;">${offer.detail || 'Tidak ada deskripsi detail tambahan.'}</p>
+                </div>
+            `;
+            
+            const modal = document.getElementById('detail-modal');
+            modal.classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+    </script>
+
+    <!-- DETAIL MODAL OVERLAY -->
+    <div id="detail-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box" style="width: 480px;">
+            <div class="custom-modal-header" style="background:#FDF5E6; color:#1a365d; font-weight:700;">
+                🎓 Detail Tawaran Beasiswa
+            </div>
+            <div class="custom-modal-body" id="detail-modal-body" style="font-weight: 500; font-size: 13px; line-height: 1.6; text-align: left; padding: 24px;">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="custom-modal-footer" style="padding: 0 24px 20px;">
+                <button class="custom-modal-btn" onclick="closeDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

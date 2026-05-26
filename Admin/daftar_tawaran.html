@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Tawaran - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard.css">
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../Beranda/beranda.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="admin.html" class="menu-item">
+                <span class="icon">⊞</span> Dashboard
+            </a>
+            <a href="verifikasi.html" class="menu-item">
+                <span class="icon">📋</span> Verifikasi
+            </a>
+            <a href="unggah_tawaran.html" class="menu-item active">
+                <span class="icon">📤</span> Unggah Tawaran
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang Admin Fasker!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    Pusat Fasker
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb" style="margin-bottom: 24px;">Tawaran Beasiswa</div>
+
+            <!-- FILTER BAR -->
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="search-input">Cari</label>
+                    <input type="text" id="search-input" placeholder="Cari program...">
+                </div>
+                <div class="filter-group">
+                    <label for="kategori-select">Kategori</label>
+                    <select id="kategori-select">
+                        <option value="">Pilih</option>
+                        <option value="Beasiswa">Beasiswa</option>
+                        <option value="Pelatihan">Pelatihan</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="negara-select">Negara</label>
+                    <select id="negara-select">
+                        <option value="">Pilih Negara</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Korea">Korea</option>
+                        <option value="USA">USA</option>
+                        <option value="Japan">Japan</option>
+                    </select>
+                </div>
+                <button class="btn-filter-cari" onclick="filterBeasiswa()">🔍 Cari</button>
+                <button class="btn-filter-reset" onclick="resetFilterBeasiswa()">Reset</button>
+            </div>
+
+            <div class="beasiswa-grid">
+                <!-- CARD 1 -->
+                <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="Australia">
+                    <img src="https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png" class="beasiswa-icon"
+                        alt="Australia">
+                    <div class="beasiswa-title">Awards Scholarship<br>Australia</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 2 -->
+                <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Korea">
+                    <img src="https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png" class="beasiswa-icon"
+                        alt="Korea">
+                    <div class="beasiswa-title">Leadership Training<br>In Korea</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 3 -->
+                <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="USA">
+                    <img src="https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png" class="beasiswa-icon"
+                        alt="USA">
+                    <div class="beasiswa-title">Fullbright Program<br>USA</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 4 -->
+                <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Japan">
+                    <img src="https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png" class="beasiswa-icon"
+                        alt="Japan">
+                    <div class="beasiswa-title">JICA Training Program<br>Japan</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+
+                <!-- CARD 5 -->
+                <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="Australia">
+                    <img src="https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png" class="beasiswa-icon"
+                        alt="Australia">
+                    <div class="beasiswa-title">Awards Scholarship<br>Australia</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 6 -->
+                <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Korea">
+                    <img src="https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png" class="beasiswa-icon"
+                        alt="Korea">
+                    <div class="beasiswa-title">Leadership Training<br>In Korea</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 7 -->
+                <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="USA">
+                    <img src="https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png" class="beasiswa-icon"
+                        alt="USA">
+                    <div class="beasiswa-title">Fullbright Program<br>USA</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+                <!-- CARD 8 -->
+                <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Japan">
+                    <img src="https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png" class="beasiswa-icon"
+                        alt="Japan">
+                    <div class="beasiswa-title">JICA Training Program<br>Japan</div>
+                    <div class="beasiswa-date">Januari-Maret 2026</div>
+                    <div class="beasiswa-req-title">Persyaratan:</div>
+                    <ul class="beasiswa-req-list">
+                        <li>-</li>
+                        <li>-</li>
+                        <li>-</li>
+                    </ul>
+                    <button class="btn-lamar">Lamar</button>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        function filterBeasiswa() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const kategori = document.getElementById('kategori-select').value;
+            const negara = document.getElementById('negara-select').value;
+            
+            const cards = document.querySelectorAll('.beasiswa-grid .beasiswa-card');
+            cards.forEach(card => {
+                const cardKategori = card.getAttribute('data-kategori') || '';
+                const cardNegara = card.getAttribute('data-negara') || '';
+                
+                // Get title text
+                const titleNode = card.querySelector('.beasiswa-title');
+                const titleText = titleNode ? titleNode.textContent.toLowerCase() : '';
+                
+                const matchQuery = !query || titleText.includes(query);
+                const matchKategori = !kategori || cardKategori === kategori;
+                const matchNegara = !negara || cardNegara === negara;
+                
+                if (matchQuery && matchKategori && matchNegara) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function resetFilterBeasiswa() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('kategori-select').value = '';
+            document.getElementById('negara-select').value = '';
+            
+            const cards = document.querySelectorAll('.beasiswa-grid .beasiswa-card');
+            cards.forEach(card => {
+                card.style.display = 'flex';
+            });
+        }
+    </script>
+
+</body>
+
+</html>

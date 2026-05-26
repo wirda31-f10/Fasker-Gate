@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASN Dashboard - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* DASHBOARD GRID STYLING */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            margin-top: 16px;
+            width: 100%;
+        }
+        .dashboard-column {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .metric-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .metric-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333333;
+        }
+        .metric-value-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .metric-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1a365d;
+        }
+        .metric-badge {
+            background: #e2f4e9;
+            color: #28a745;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+        }
+        .chart-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .tall-chart-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .tall-chart-card .chart-container {
+            flex: 1;
+            height: 100% !important;
+            min-height: 380px;
+        }
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #333333;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- VERIFICATION LOCK OVERLAY -->
+    <div id="verification-lock-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(180deg, #A4C4E0 0%, #D8E5F1 50%, #F0F5FA 100%) !important; z-index: 99999; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif;">
+        <div style="background: #ffffff; border: 1px solid #CF840A80; box-shadow: 0 15px 40px rgba(0,0,0,0.08); border-radius: 25px; padding: 40px; max-width: 500px; text-align: center; margin: 20px;">
+            <div style="margin-bottom: 24px; display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: rgba(164, 196, 224, 0.2); border-radius: 50%;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4a76a8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 40px; height: 40px;">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" fill="rgba(164, 196, 224, 0.3)"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+            </div>
+            <h2 id="lockscreen-title" style="color: #212529; font-weight: 700; margin-bottom: 12px; font-size: 24px;">Menunggu Verifikasi</h2>
+            <p id="lockscreen-desc" style="color: #6c757d; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+                Dokumen Anda telah berhasil dikirim dan sedang dalam proses peninjauan oleh <strong>Admin Fasker</strong>.<br>
+                Anda baru dapat mengakses dashboard setelah akun Anda diverifikasi.
+            </p>
+            <button onclick="logoutFromLock()" style="background: #D78B10; color: rgba(0, 0, 0, 0.65); border: none; padding: 12px 30px; font-size: 14px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; font-family: 'Montserrat', sans-serif; box-shadow: 0 4px 10px rgba(215, 139, 16, 0.2);">
+                Kembali ke Beranda
+            </button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="../Beranda/beranda.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <div class="menu-item" style="cursor: pointer;" onclick="toggleSubmenu()">
+                <span class="icon">⊞</span> Dashboard
+                <span id="submenu-arrow" style="margin-left: auto;">▼</span>
+            </div>
+            <div id="dashboard-submenu" style="display: block;">
+                <a href="#" class="menu-item submenu-item active" id="menu-dashboard" onclick="showDashboard()">
+                    Dashboard
+                </a>
+                <a href="#" class="menu-item submenu-item" id="menu-edit-profil" onclick="showEditProfil()">
+                    Edit Profil
+                </a>
+            </div>
+            <a href="#" class="menu-item" id="menu-beasiswa" onclick="showBeasiswa()">
+                <span class="icon">🎓</span> Daftar Beasiswa
+            </a>
+        </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang ASN!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    ASN
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb" id="breadcrumb-text">Dashboard</div>
+
+            <!-- DASHBOARD VIEW -->
+            <div id="dashboard-view" style="display: block;">
+                <!-- DASHBOARD GRID -->
+                <div class="dashboard-grid">
+                    <!-- LEFT COLUMN -->
+                    <div class="dashboard-column">
+                        <!-- METRIC CARD -->
+                        <div class="metric-card">
+                            <div class="metric-title">Total Tawaran Beasiswa</div>
+                            <div class="metric-value-container">
+                                <span class="metric-value" id="total-tawaran-val">0</span>
+                                <span class="metric-badge">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="width:12px; height:12px; margin-right:2px;"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- LINE CHART CARD -->
+                        <div class="chart-card">
+                            <div class="chart-title">Jumlah ASN Mendaftar & Berhasil per Tahun</div>
+                            <div class="chart-container">
+                                <canvas id="lineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="dashboard-column">
+                        <!-- BAR CHART CARD -->
+                        <div class="chart-card tall-chart-card">
+                            <div class="chart-title">Total Tawaran Beasiswa per Tahun</div>
+                            <div class="chart-container">
+                                <canvas id="barChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORM CARD ASN -->
+            <div class="form-card" id="profile-form" style="display: none;">
+                <div class="brand-logo" style="margin-bottom: 12px;">
+                    <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                    <div class="brand-text">
+                        <div class="brand-title"><span>FASKER</span> GATE</div>
+                        <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                    </div>
+                </div>
+
+                <div class="form-group"><input type="text" id="profileNama" placeholder="Nama Lengkap"></div>
+                <div class="form-group"><input type="email" id="profileEmail" placeholder="Email"></div>
+                <div class="form-group"><input type="password" id="profilePass" placeholder="Password"></div>
+                <div class="form-group"><input type="text" id="profileHp" placeholder="Nomor HP"></div>
+                <div class="form-group"><input type="text" id="profileInstansi" placeholder="Asal Instansi"></div>
+                <div class="form-group"><input type="text" id="profileNip" placeholder="NIP"></div>
+                <div class="form-group"><input type="text" id="profileGol" placeholder="Pangkat/Gol"></div>
+                <div class="form-group"><input type="text" id="profileJabatan" placeholder="Jabatan"></div>
+                <div class="form-group">
+                    <label style="font-size: 10px; color: #555; margin-left: 16px;">Surat Permohonan (.pdf) <span id="label-surat" style="color:#0d6efd; font-weight:600;"></span></label>
+                    <input type="file" id="profileSurat" accept=".pdf" style="padding-top: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 10px; color: #555; margin-left: 16px;">Formulir Lamaran (.pdf) <span id="label-formulir" style="color:#0d6efd; font-weight:600;"></span></label>
+                    <input type="file" id="profileFormulir" accept=".pdf" style="padding-top: 6px;">
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 10px; color: #555; margin-left: 16px;">Curriculum Vitae (.pdf) <span id="label-cv" style="color:#0d6efd; font-weight:600;"></span></label>
+                    <input type="file" id="profileCv" accept=".pdf" style="padding-top: 6px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label style="font-size: 10px; color: #555; margin-left: 16px;">Sertifikat TOEFL (.pdf) <span id="label-toefl" style="color:#0d6efd; font-weight:600;"></span></label>
+                    <input type="file" id="profileToefl" accept=".pdf" style="padding-top: 6px;">
+                </div>
+
+                <button class="btn-form-submit" onclick="submitProfile()">Ubah</button>
+            </div>
+
+            <!-- DAFTAR BEASISWA VIEW -->
+            <div id="beasiswa-view" style="display: none;">
+                <!-- FILTER BAR -->
+                <div class="filter-container">
+                    <div class="filter-group">
+                        <label for="search-input">Cari</label>
+                        <input type="text" id="search-input" placeholder="Cari program...">
+                    </div>
+                    <div class="filter-group">
+                        <label for="kategori-select">Kategori</label>
+                        <select id="kategori-select">
+                            <option value="">Pilih</option>
+                            <option value="Beasiswa">Beasiswa</option>
+                            <option value="Pelatihan">Pelatihan</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="negara-select">Negara</label>
+                        <select id="negara-select">
+                            <option value="">Pilih Negara</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Korea">Korea</option>
+                            <option value="USA">USA</option>
+                            <option value="Japan">Japan</option>
+                        </select>
+                    </div>
+                    <button class="btn-filter-cari" onclick="filterBeasiswa()">🔍 Cari</button>
+                    <button class="btn-filter-reset" onclick="resetFilterBeasiswa()">Reset</button>
+                </div>
+
+                <div class="beasiswa-grid">
+                    <!-- CARD 1 -->
+                    <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="Australia">
+                        <img src="https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png" class="beasiswa-icon"
+                            alt="Australia">
+                        <div class="beasiswa-title">Awards Scholarship<br>Australia</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 2 -->
+                    <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Korea">
+                        <img src="https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png" class="beasiswa-icon"
+                            alt="Korea">
+                        <div class="beasiswa-title">Leadership Training<br>In Korea</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 3 -->
+                    <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="USA">
+                        <img src="https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png" class="beasiswa-icon"
+                            alt="USA">
+                        <div class="beasiswa-title">Fullbright Program<br>USA</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 4 -->
+                    <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Japan">
+                        <img src="https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png" class="beasiswa-icon"
+                            alt="Japan">
+                        <div class="beasiswa-title">JICA Training Program<br>Japan</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+
+                    <!-- CARD 5 -->
+                    <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="Australia">
+                        <img src="https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png" class="beasiswa-icon"
+                            alt="Australia">
+                        <div class="beasiswa-title">Awards Scholarship<br>Australia</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 6 -->
+                    <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Korea">
+                        <img src="https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png" class="beasiswa-icon"
+                            alt="Korea">
+                        <div class="beasiswa-title">Leadership Training<br>In Korea</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 7 -->
+                    <div class="beasiswa-card" data-kategori="Beasiswa" data-negara="USA">
+                        <img src="https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png" class="beasiswa-icon"
+                            alt="USA">
+                        <div class="beasiswa-title">Fullbright Program<br>USA</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                    <!-- CARD 8 -->
+                    <div class="beasiswa-card" data-kategori="Pelatihan" data-negara="Japan">
+                        <img src="https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png" class="beasiswa-icon"
+                            alt="Japan">
+                        <div class="beasiswa-title">JICA Training Program<br>Japan</div>
+                        <div class="beasiswa-date">Januari-Maret 2026</div>
+                        <div class="beasiswa-req-title">Persyaratan:</div>
+                        <ul class="beasiswa-req-list">
+                            <li>-</li>
+                            <li>-</li>
+                            <li>-</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script src="lamar_beasiswa.js"></script>
+
+    <script>
+        // === Script Khusus untuk Navigasi Dashboard ===
+        function submitProfile() {
+            const nama = document.getElementById('profileNama').value;
+            const email = document.getElementById('profileEmail').value;
+            const pass = document.getElementById('profilePass').value;
+            const hp = document.getElementById('profileHp').value;
+            const instansi = document.getElementById('profileInstansi').value;
+            const nip = document.getElementById('profileNip').value;
+            const gol = document.getElementById('profileGol').value;
+            const jabatan = document.getElementById('profileJabatan').value;
+            
+            const fSurat = document.getElementById('profileSurat').files[0];
+            const fFormulir = document.getElementById('profileFormulir').files[0];
+            const fCv = document.getElementById('profileCv').files[0];
+            const fToefl = document.getElementById('profileToefl').files[0];
+
+            const surat = fSurat ? fSurat.name : (localStorage.getItem('asn_surat') || '');
+            const formulir = fFormulir ? fFormulir.name : (localStorage.getItem('asn_formulir') || '');
+            const cv = fCv ? fCv.name : (localStorage.getItem('asn_cv') || '');
+            const toefl = fToefl ? fToefl.name : (localStorage.getItem('asn_toefl') || '');
+
+            localStorage.setItem('asn_nama', nama);
+            localStorage.setItem('asn_email', email);
+            localStorage.setItem('asn_pass', pass);
+            localStorage.setItem('asn_hp', hp);
+            localStorage.setItem('asn_instansi', instansi);
+            localStorage.setItem('asn_nip', nip);
+            localStorage.setItem('asn_gol', gol);
+            localStorage.setItem('asn_jabatan', jabatan);
+            localStorage.setItem('asn_surat', surat);
+            localStorage.setItem('asn_formulir', formulir);
+            localStorage.setItem('asn_cv', cv);
+            localStorage.setItem('asn_toefl', toefl);
+
+            // Update navbar greeting dynamically
+            const greetingNode = document.querySelector('.welcome-text');
+            if (greetingNode) {
+                greetingNode.textContent = `Selamat Datang ${nama}!`;
+            }
+            const profileNameNode = document.querySelector('.profile-name');
+            if (profileNameNode) {
+                profileNameNode.innerHTML = `${nama} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            }
+
+            showDashboard();
+        }
+
+        function calculateOfferStatus(tahun, periode) {
+            const startYear = parseInt(tahun);
+            const duration = parseInt(periode) || 1;
+            const endYear = startYear + duration;
+            if (endYear <= 2026) {
+                return 'Selesai';
+            } else {
+                return 'Berjalan';
+            }
+        }
+
+        function getSisaKuota(judul, kuantitas) {
+            const totalQuota = parseInt(kuantitas) || 0;
+            const apps = JSON.parse(localStorage.getItem('scholarship_applications') || '[]');
+            const appliedCount = apps.filter(app => app.judul === judul).length;
+            return Math.max(0, totalQuota - appliedCount);
+        }
+
+        function getCountryIcon(negara) {
+            const n = negara.toLowerCase();
+            if (n.includes('australia')) return 'https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png';
+            if (n.includes('korea')) return 'https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png';
+            if (n.includes('amerika') || n.includes('usa') || n.includes('fulbright')) return 'https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png';
+            if (n.includes('jepang') || n.includes('japan') || n.includes('jica') || n.includes('monbukagakusho')) return 'https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png';
+            return 'https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png';
+        }
+
+        function renderBeasiswaGrid() {
+            const grid = document.querySelector('.beasiswa-grid');
+            if (!grid) return;
+            
+            const staticOffers = [
+                { judul: "Awards Scholarship Australia", periode: "2 Tahun", negara: "Australia", kuantitas: "15 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Beasiswa Magister di Australia.", tahun: "2026" },
+                { judul: "Leadership Training In Korea", periode: "1 Tahun", negara: "Korea", kuantitas: "10 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Pelatihan kepemimpinan di Korea.", tahun: "2026" },
+                { judul: "Fullbright Program USA", periode: "2 Tahun", negara: "USA", kuantitas: "8 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Beasiswa Magister di Amerika Serikat.", tahun: "2026" },
+                { judul: "JICA Training Program Japan", periode: "1 Tahun", negara: "Japan", kuantitas: "12 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Pelatihan kerja sama teknis di Jepang.", tahun: "2026" },
+                { judul: "Ranu (Beasiswa Thailand)", periode: "1 Tahun", negara: "Thailand", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan tata kelola perkotaan.", tahun: "2025" },
+                { judul: "Ranu (Beasiswa Vietnam)", periode: "2 Tahun", negara: "Vietnam", kuantitas: "15 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa studi banding sistem pertanian.", tahun: "2025" },
+                { judul: "Ranu (Beasiswa Thailand)", periode: "1 Tahun", negara: "Thailand", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan tata kelola perkotaan.", tahun: "2024" },
+                { judul: "Ranu (Beasiswa Singapura)", periode: "3 Tahun", negara: "Singapura", kuantitas: "10 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa Magister Kebijakan Publik.", tahun: "2024" },
+                { judul: "Ranu (Beasiswa Malaysia)", periode: "2 Tahun", negara: "Malaysia", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa Magister Manajemen Publik.", tahun: "2023" },
+                { judul: "Ranu (Beasiswa Kamboja)", periode: "1 Tahun", negara: "Kamboja", kuantitas: "5 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan kerja sama sosial-budaya ASEAN.", tahun: "2023" },
+                { judul: "Ranu (Beasiswa Amerika)", periode: "3 Tahun", negara: "Amerika", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Program Fellowship Kebijakan Publik.", tahun: "2022" },
+                { judul: "Ranu (Beasiswa Inggris)", periode: "1 Tahun", negara: "Inggris", kuantitas: "12 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Tata Kelola Pemerintahan Daerah.", tahun: "2022" },
+                { judul: "Ranu (Beasiswa Australia)", periode: "1 Tahun", negara: "Australia", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Tata Kelola Publik Internasional.", tahun: "2021" },
+                { judul: "Ranu (Beasiswa Selandia Baru)", periode: "2 Tahun", negara: "Selandia Baru", kuantitas: "8 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa studi pascasarjana.", tahun: "2021" },
+                { judul: "Ranu (Beasiswa Korea)", periode: "1 Tahun", negara: "Korea", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Sistem Pemerintahan Digital.", tahun: "2020" },
+                { judul: "Ranu (Beasiswa Jepang)", periode: "1 Tahun", negara: "Jepang", kuantitas: "25 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Manajemen Logistik dan Transportasi.", tahun: "2020" }
+            ];
+            
+            const dynamicOffers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            const allOffers = [...staticOffers, ...dynamicOffers];
+            
+            grid.innerHTML = '';
+            
+            allOffers.forEach(offer => {
+                const status = calculateOfferStatus(offer.tahun || '2026', offer.periode);
+                const sisaKuota = getSisaKuota(offer.judul, offer.kuantitas);
+                
+                if (status === 'Berjalan' && sisaKuota > 0) {
+                    const countryIcon = getCountryIcon(offer.negara || '');
+                    const category = (offer.judul.toLowerCase().includes('training') || offer.judul.toLowerCase().includes('pelatihan')) ? 'Pelatihan' : 'Beasiswa';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'beasiswa-card';
+                    card.setAttribute('data-kategori', category);
+                    card.setAttribute('data-negara', offer.negara || '');
+                    
+                    card.innerHTML = `
+                        <img src="${countryIcon}" class="beasiswa-icon" alt="${offer.negara}">
+                        <div class="beasiswa-title" style="font-size:11px; font-weight:700; height:32px; display:flex; align-items:center; justify-content:center; line-height: 1.2;">${offer.judul}</div>
+                        <div class="beasiswa-date" style="font-size:9px; margin-top:4px; font-weight:700;">Tahun ${offer.tahun || '2026'} (${offer.periode})</div>
+                        <div style="font-size: 10px; font-weight: 800; color: #D78B10; margin-bottom: 8px;">Sisa Kuota: ${sisaKuota} ASN</div>
+                        <div class="beasiswa-req-title" style="font-size:9px; color:#666;">Persyaratan:</div>
+                        <ul class="beasiswa-req-list" style="margin-bottom: 24px;">
+                            <li>${offer.persyaratan || 'IPK > 3.0'}</li>
+                        </ul>
+                        <button class="btn-lamar">Lamar</button>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+            
+            const lamarBtns = grid.querySelectorAll('.btn-lamar');
+            lamarBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const card = e.target.closest('.beasiswa-card');
+                    const title = card.querySelector('.beasiswa-title').innerText;
+                    const logoUrl = card.querySelector('.beasiswa-icon').src;
+                    
+                    const params = new URLSearchParams();
+                    params.append('title', title);
+                    params.append('logo', logoUrl);
+                    window.location.href = 'lamar_beasiswa.html?' + params.toString();
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const nama = localStorage.getItem('asn_nama') || 'ASN';
+            const email = localStorage.getItem('asn_email') || 'asn@gmail.com';
+            const pass = localStorage.getItem('asn_pass') || 'password123';
+            const hp = localStorage.getItem('asn_hp') || '08123456789';
+            const instansi = localStorage.getItem('asn_instansi') || 'KemenDagri';
+            const nip = localStorage.getItem('asn_nip') || '234567';
+            const gol = localStorage.getItem('asn_gol') || 'Gol. III';
+            const jabatan = localStorage.getItem('asn_jabatan') || 'Pranata Komputer';
+            const surat = localStorage.getItem('asn_surat') || '';
+            const formulir = localStorage.getItem('asn_formulir') || '';
+            const cv = localStorage.getItem('asn_cv') || '';
+            const toefl = localStorage.getItem('asn_toefl') || '';
+
+            document.getElementById('profileNama').value = nama;
+            document.getElementById('profileEmail').value = email;
+            document.getElementById('profilePass').value = pass;
+            document.getElementById('profileHp').value = hp;
+            document.getElementById('profileInstansi').value = instansi;
+            document.getElementById('profileNip').value = nip;
+            document.getElementById('profileGol').value = gol;
+            document.getElementById('profileJabatan').value = jabatan;
+            
+            if(surat) document.getElementById('label-surat').innerText = `(Terunggah: ${surat})`;
+            if(formulir) document.getElementById('label-formulir').innerText = `(Terunggah: ${formulir})`;
+            if(cv) document.getElementById('label-cv').innerText = `(Terunggah: ${cv})`;
+            if(toefl) document.getElementById('label-toefl').innerText = `(Terunggah: ${toefl})`;
+
+            const greetingNode = document.querySelector('.welcome-text');
+            if (greetingNode) {
+                greetingNode.textContent = `Selamat Datang ${nama}!`;
+            }
+            const profileNameNode = document.querySelector('.profile-name');
+            if (profileNameNode) {
+                profileNameNode.innerHTML = `${nama} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
+            }
+
+            checkVerificationStatus();
+            renderBeasiswaGrid();
+            renderDashboardCharts();
+            
+            // Inisialisasi tampilan default atau dari URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('view') === 'profil') {
+                showEditProfil();
+            } else {
+                showDashboard();
+            }
+        });
+
+        // Simpan instance chart secara global agar bisa dihancurkan/update saat dipanggil berulang kali
+        let asnLineChartInstance = null;
+        let asnBarChartInstance = null;
+
+        function renderDashboardCharts() {
+            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
+            const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
+
+            // Hitung Total Tawaran Beasiswa (Hanya yang aktif / tahun 2026)
+            let openOffers = 4; // 4 penawaran default statis untuk tahun 2026
+            offers.forEach(offer => {
+                const year = offer.tahun || '2026';
+                if (year === '2026') {
+                    openOffers++;
+                }
+            });
+            document.getElementById('total-tawaran-val').textContent = openOffers;
+
+            // Chart Line: ASN Mendaftar
+            const lineYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
+            const defaultStaticRows = [
+                { id: 1, tahun: '2025', status: 'Verified' },
+                { id: 2, tahun: '2025', status: 'Unverified' },
+                { id: 3, tahun: '2024', status: 'Verified' },
+                { id: 4, tahun: '2024', status: 'Unverified' },
+                { id: 5, tahun: '2023', status: 'Verified' },
+                { id: 6, tahun: '2023', status: 'Verified' },
+                { id: 7, tahun: '2022', status: 'Unverified' },
+                { id: 8, tahun: '2022', status: 'Verified' },
+                { id: 9, tahun: '2021', status: 'Unverified' },
+                { id: 10, tahun: '2021', status: 'Unverified' },
+                { id: 11, tahun: '2020', status: 'Unverified' },
+                { id: 12, tahun: '2020', status: 'Verified' }
+            ];
+
+            const diterimaPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            const ditolakPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            const prosesPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+
+            defaultStaticRows.forEach(row => {
+                if (!deletedStatics.includes(row.id)) {
+                    const currentStatus = staticStatuses[row.id] || row.status;
+                    if (currentStatus === 'Verified') {
+                        diterimaPerYear[row.tahun]++;
+                    } else if (currentStatus === 'Unverified') {
+                        ditolakPerYear[row.tahun]++;
+                    } else {
+                        prosesPerYear[row.tahun]++;
+                    }
+                }
+            });
+
+            apps.forEach(app => {
+                const appTahun = app.tahun || '2026';
+                const currentStatus = app.status || 'Pending';
+                
+                if (diterimaPerYear[appTahun] === undefined) {
+                    diterimaPerYear[appTahun] = 0;
+                    ditolakPerYear[appTahun] = 0;
+                    prosesPerYear[appTahun] = 0;
+                }
+
+                if (currentStatus === 'Verified') {
+                    diterimaPerYear[appTahun]++;
+                } else if (currentStatus === 'Unverified') {
+                    ditolakPerYear[appTahun]++;
+                } else {
+                    prosesPerYear[appTahun]++;
+                }
+            });
+
+            const diterimaData = lineYears.map(y => diterimaPerYear[y] || 0);
+            const ditolakData = lineYears.map(y => ditolakPerYear[y] || 0);
+            const prosesData = lineYears.map(y => prosesPerYear[y] || 0);
+
+            const ctxLine = document.getElementById('lineChart').getContext('2d');
+            if (asnLineChartInstance) {
+                asnLineChartInstance.destroy();
+            }
+            asnLineChartInstance = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: lineYears,
+                    datasets: [
+                        {
+                            label: 'Diterima',
+                            data: diterimaData,
+                            borderColor: '#1cc63e',
+                            backgroundColor: '#1cc63e',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'circle',
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'Tidak Diterima',
+                            data: ditolakData,
+                            borderColor: '#e53935',
+                            backgroundColor: '#e53935',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'triangle',
+                            pointRadius: 6
+                        },
+                        {
+                            label: 'Masih Proses',
+                            data: prosesData,
+                            borderColor: '#0d6efd',
+                            backgroundColor: '#0d6efd',
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            pointStyle: 'rectRot',
+                            pointRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: { callbacks: { title: () => '' } }
+                    }
+                }
+            });
+
+            // Bar Chart: Total Tawaran Beasiswa
+            const defaultStaticOffers = [
+                { id: 1, tahun: '2025' }, { id: 2, tahun: '2025' }, { id: 3, tahun: '2024' }, { id: 4, tahun: '2024' },
+                { id: 5, tahun: '2023' }, { id: 6, tahun: '2023' }, { id: 7, tahun: '2022' }, { id: 8, tahun: '2022' },
+                { id: 9, tahun: '2021' }, { id: 10, tahun: '2021' }, { id: 11, tahun: '2020' }, { id: 12, tahun: '2020' }
+            ];
+
+            const offersPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
+            defaultStaticOffers.forEach(offer => { offersPerYear[offer.tahun]++; });
+
+            offers.forEach(offer => {
+                const offerTahun = offer.tahun || '2026';
+                if (offersPerYear[offerTahun] !== undefined) {
+                    offersPerYear[offerTahun]++;
+                } else {
+                    offersPerYear[offerTahun] = 1;
+                }
+            });
+
+            const barChartData = lineYears.map(y => offersPerYear[y] || 0);
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (asnBarChartInstance) {
+                asnBarChartInstance.destroy();
+            }
+            asnBarChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: lineYears,
+                    datasets: [{
+                        data: barChartData,
+                        backgroundColor: '#28558c',
+                        hoverBackgroundColor: '#1d3e66',
+                        borderRadius: 4,
+                        barThickness: 32
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+
+        function checkVerificationStatus() {
+            const currentNip = localStorage.getItem('asn_nip');
+            const currentNama = localStorage.getItem('asn_nama');
+            if (!currentNip && !currentNama) return;
+            
+            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+            const userApp = apps.find(app => app.nip === currentNip || app.nama === currentNama);
+            
+            if (userApp && userApp.status !== 'Verified') {
+                document.getElementById('verification-lock-overlay').style.display = 'flex';
+                
+                const titleNode = document.getElementById('lockscreen-title');
+                const descNode = document.getElementById('lockscreen-desc');
+                
+                if (userApp.status === 'Unverified') {
+                    if (titleNode) titleNode.textContent = "Pendaftaran Ditolak";
+                    if (descNode) {
+                        descNode.innerHTML = `
+                            Mohon maaf, berkas pendaftaran Anda <strong>tidak diterima</strong> oleh Admin Fasker.<br>
+                            Silakan hubungi admin atau daftar kembali jika ada kesalahan dokumen.
+                        `;
+                    }
+                } else {
+                    if (titleNode) titleNode.textContent = "Menunggu Verifikasi";
+                    if (descNode) {
+                        descNode.innerHTML = `
+                            Dokumen Anda telah berhasil dikirim dan sedang dalam proses peninjauan oleh <strong>Admin Fasker</strong>.<br>
+                            Anda baru dapat mengakses dashboard setelah akun Anda diverifikasi.
+                        `;
+                    }
+                }
+            }
+        }
+
+        function logoutFromLock() {
+            window.location.href = '../Beranda/beranda.html';
+        }
+
+        function toggleSubmenu() {
+            const submenu = document.getElementById('dashboard-submenu');
+            const arrow = document.getElementById('submenu-arrow');
+            if (submenu.style.display === 'none') {
+                submenu.style.display = 'block';
+                arrow.innerText = '▼';
+            } else {
+                submenu.style.display = 'none';
+                arrow.innerText = '▶';
+            }
+        }
+
+        function resetMenu() {
+            document.getElementById('menu-dashboard').classList.remove('active');
+            document.getElementById('menu-edit-profil').classList.remove('active');
+            document.getElementById('menu-beasiswa').classList.remove('active');
+        }
+
+        function showDashboard() {
+            document.getElementById('dashboard-view').style.display = 'block';
+            document.getElementById('profile-form').style.display = 'none';
+            document.getElementById('beasiswa-view').style.display = 'none';
+            document.getElementById('breadcrumb-text').innerText = 'Dashboard';
+            resetMenu();
+            document.getElementById('menu-dashboard').classList.add('active');
+            renderDashboardCharts(); // Panggil ulang untuk re-render saat diklik
+        }
+
+        function showEditProfil() {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('profile-form').style.display = 'flex';
+            document.getElementById('beasiswa-view').style.display = 'none';
+            document.getElementById('breadcrumb-text').innerText = 'Edit Profil';
+            resetMenu();
+            document.getElementById('menu-edit-profil').classList.add('active');
+        }
+
+        function showBeasiswa() {
+            document.getElementById('dashboard-view').style.display = 'none';
+            document.getElementById('profile-form').style.display = 'none';
+            document.getElementById('beasiswa-view').style.display = 'block';
+            document.getElementById('breadcrumb-text').innerText = 'Tawaran Beasiswa';
+            resetMenu();
+            document.getElementById('menu-beasiswa').classList.add('active');
+        }
+
+        function filterBeasiswa() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const kategori = document.getElementById('kategori-select').value;
+            const negara = document.getElementById('negara-select').value;
+            
+            const cards = document.querySelectorAll('#beasiswa-view .beasiswa-card');
+            cards.forEach(card => {
+                const cardKategori = card.getAttribute('data-kategori') || '';
+                const cardNegara = card.getAttribute('data-negara') || '';
+                
+                // Get title text
+                const titleNode = card.querySelector('.beasiswa-title');
+                const titleText = titleNode ? titleNode.textContent.toLowerCase() : '';
+                
+                const matchQuery = !query || titleText.includes(query);
+                const matchKategori = !kategori || cardKategori === kategori;
+                const matchNegara = !negara || cardNegara === negara;
+                
+                if (matchQuery && matchKategori && matchNegara) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function resetFilterBeasiswa() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('kategori-select').value = '';
+            document.getElementById('negara-select').value = '';
+            
+            const cards = document.querySelectorAll('#beasiswa-view .beasiswa-card');
+            cards.forEach(card => {
+                card.style.display = 'flex';
+            });
+        }
+    </script>
+</body>
+
+</html>
