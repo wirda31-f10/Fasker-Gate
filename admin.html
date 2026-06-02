@@ -220,14 +220,17 @@
             const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
             const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
 
-            // 2. Hitung Total Tawaran Beasiswa (Hanya yang aktif / tahun 2026)
-            let openOffers = 4; // 4 penawaran default statis untuk tahun 2026
+           // 2. Hitung Total Tawaran Beasiswa (Hanya data tahun 2026 yang benar-benar ada)
+            let openOffers = 0;
+
             offers.forEach(offer => {
-                const year = offer.tahun || '2026';
-                if (year === '2026') {
-                    openOffers++;
-                }
+             const year = offer.tahun || '2026';
+
+             if (year === '2026') {
+             openOffers++;
+             }
             });
+
             document.getElementById('total-tawaran-val').textContent = openOffers;
 
             // 3. Hitung pendaftaran ASN aktif (statis + dinamis) per tahun untuk Line Chart
@@ -265,24 +268,29 @@
             });
 
             apps.forEach(app => {
-                const appTahun = app.tahun || '2026';
-                const currentStatus = app.status || 'Pending';
-                
-                if (diterimaPerYear[appTahun] === undefined) {
-                    diterimaPerYear[appTahun] = 0;
-                    ditolakPerYear[appTahun] = 0;
-                    prosesPerYear[appTahun] = 0;
-                }
+             const appTahun = app.tahun || '2026';
+             let currentStatus = app.status || 'Pending';
 
-                if (currentStatus === 'Verified') {
-                    diterimaPerYear[appTahun]++;
-                } else if (currentStatus === 'Unverified') {
-                    ditolakPerYear[appTahun]++;
-                } else {
-                    prosesPerYear[appTahun]++;
-                }
-            });
+             // Kalau tahun sudah lewat, status Pending dianggap Tidak Diterima
+             if (appTahun !== '2026' && currentStatus === 'Pending') {
+              currentStatus = 'Unverified';
+             }
 
+             if (diterimaPerYear[appTahun] === undefined) {
+                 diterimaPerYear[appTahun] = 0;
+                 ditolakPerYear[appTahun] = 0;
+                 prosesPerYear[appTahun] = 0;
+             }
+
+             if (currentStatus === 'Verified') {
+                diterimaPerYear[appTahun]++;
+             } else if (currentStatus === 'Unverified') {
+                ditolakPerYear[appTahun]++;
+             } else {
+                prosesPerYear[appTahun]++;
+             }
+             });
+            
             const diterimaData = lineYears.map(y => diterimaPerYear[y] || 0);
             const ditolakData = lineYears.map(y => ditolakPerYear[y] || 0);
             const prosesData = lineYears.map(y => prosesPerYear[y] || 0);
