@@ -47,7 +47,7 @@
     <script>
         const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
         const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </head>
 
@@ -365,12 +365,20 @@
         let globalApplications = [];
 
         async function loadDataAndRender() {
-            if (window.supabase) {
-                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
-                globalDynamicOffers = offersData || [];
+            if (window.supabase && typeof window.supabase.from === 'function') {
+                try {
+                    const { data: offersData, error: offersError } = await window.supabase.from('fasker_scholarships').select('*');
+                    if (!offersError && offersData) {
+                        globalDynamicOffers = offersData;
+                    }
 
-                const { data: appsData } = await supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
-                globalApplications = appsData || [];
+                    const { data: appsData, error: appsError } = await window.supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
+                    if (!appsError && appsData) {
+                        globalApplications = appsData;
+                    }
+                } catch (err) {
+                    console.error("Error loading data from Supabase:", err);
+                }
             }
             renderOfferTable();
         }
@@ -378,12 +386,13 @@
         function getSisaKuota(judul, kuantitas) {
             const totalQuota = parseInt(kuantitas) || 0;
             const appliedCount = globalApplications.filter(app => app.scholarship_title === judul).length;
-            const unit = kuantitas.replace(/[0-9]/g, '').trim() || 'ASN';
+            const unit = kuantitas ? (kuantitas.replace(/[0-9]/g, '').trim() || 'ASN') : 'ASN';
             return `${totalQuota - appliedCount} / ${totalQuota} ${unit}`;
         }
 
         function renderOfferTable() {
             const tbody = document.getElementById('unggah-tbody');
+            if (!tbody) return;
             const selectedTahun = document.getElementById('tahun-select').value;
             
             const staticRows = Array.from(tbody.querySelectorAll('tr[data-id]'));
@@ -398,23 +407,26 @@
                     const statusCell = row.cells[8];
                     const kuantitasCell = row.cells[5];
                     const judulCell = row.cells[1];
-                    const periodeText = periodeCell.textContent.trim();
-                    const status = calculateOfferStatus(tahun, periodeText);
                     
-                    if (status === 'Berjalan') {
-                        statusCell.innerHTML = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Berjalan</button>`;
-                    } else {
-                        statusCell.innerHTML = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Selesai</button>`;
-                    }
+                    if (periodeCell && statusCell && kuantitasCell && judulCell) {
+                        const periodeText = periodeCell.textContent.trim();
+                        const status = calculateOfferStatus(tahun, periodeText);
+                        
+                        if (status === 'Berjalan') {
+                            statusCell.innerHTML = `<button class="status-btn verified" style="pointer-events: none; cursor: default;">Berjalan</button>`;
+                        } else {
+                            statusCell.innerHTML = `<button class="status-btn unverified" style="pointer-events: none; cursor: default;">Selesai</button>`;
+                        }
 
-                    // Display remaining quota dynamically for static row
-                    const totalKuantitas = kuantitasCell.getAttribute('data-original-kuantitas') || kuantitasCell.textContent.trim();
-                    if (!kuantitasCell.getAttribute('data-original-kuantitas')) {
-                        kuantitasCell.setAttribute('data-original-kuantitas', totalKuantitas);
+                        // Display remaining quota dynamically for static row
+                        const totalKuantitas = kuantitasCell.getAttribute('data-original-kuantitas') || kuantitasCell.textContent.trim();
+                        if (!kuantitasCell.getAttribute('data-original-kuantitas')) {
+                            kuantitasCell.setAttribute('data-original-kuantitas', totalKuantitas);
+                        }
+                        const judulText = judulCell.textContent.trim();
+                        const sisaText = getSisaKuota(judulText, totalKuantitas);
+                        kuantitasCell.innerHTML = `<span class="table-data-text">${sisaText}</span>`;
                     }
-                    const judulText = judulCell.textContent.trim();
-                    const sisaText = getSisaKuota(judulText, totalKuantitas);
-                    kuantitasCell.innerHTML = `<span class="table-data-text">${sisaText}</span>`;
                 } else {
                     row.style.display = 'none';
                 }
