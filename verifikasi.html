@@ -716,6 +716,16 @@ async function renderTable() {
             }
         }
 
+        function getLinkHtml(fileUrl, label) {
+            if (fileUrl && fileUrl.startsWith('http')) {
+                const parts = fileUrl.split('/');
+                const filename = parts.pop();
+                const displayLabel = filename.split('_').slice(2).join('_') || filename;
+                return `<a href="${fileUrl}" target="_blank" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;">📄 ${label}: <span style="text-decoration:underline;">${decodeURIComponent(displayLabel)}</span></a>`;
+            }
+            return `<a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${fileUrl}')">📄 ${label}: <span style="text-decoration:underline;">${fileUrl}</span></a>`;
+        }
+
         function displayDetailModal(asn, tipeData) {
             const body = document.getElementById('detail-modal-body');
             body.innerHTML = `
@@ -732,10 +742,10 @@ async function renderTable() {
                 <div style="border-top: 1px solid #eee; padding-top: 12px; font-family:'Montserrat', sans-serif;">
                     <strong style="display:block; margin-bottom: 8px; color: #1a365d;">Dokumen Sumber Pendaftaran:</strong>
                     <div style="display:flex; flex-direction:column; gap:6px;">
-                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.surat}')">📄 Surat Permohonan: <span style="text-decoration:underline;">${asn.surat}</span></a>
-                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.formulir}')">📄 Formulir Lamaran: <span style="text-decoration:underline;">${asn.formulir}</span></a>
-                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.cv}')">📄 Curriculum Vitae (CV): <span style="text-decoration:underline;">${asn.cv}</span></a>
-                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.toefl}')">📄 Sertifikat TOEFL: <span style="text-decoration:underline;">${asn.toefl}</span></a>
+                        ${getLinkHtml(asn.surat, 'Surat Permohonan')}
+                        ${getLinkHtml(asn.formulir, 'Formulir Lamaran')}
+                        ${getLinkHtml(asn.cv, 'Curriculum Vitae (CV)')}
+                        ${getLinkHtml(asn.toefl, 'Sertifikat TOEFL')}
                     </div>
                 </div>
             `;
