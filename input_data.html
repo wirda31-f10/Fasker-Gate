@@ -95,11 +95,10 @@
                 }
 
                 // 1. Simpan ke fasker_users di Supabase
-                // Menggunakan "Nama" (huruf N besar) sesuai nama kolom di Supabase
                 const { error: userError } = await window.supabase
                     .from('fasker_users')
                     .insert([{
-                        Nama: tempAsn.nama,
+                        nama: tempAsn.nama,
                         email: tempAsn.email,
                         pass: tempAsn.pass,
                         hp: tempAsn.hp,
