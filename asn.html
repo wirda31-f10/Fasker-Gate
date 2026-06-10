@@ -91,6 +91,14 @@
             height: 280px;
         }
     </style>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -478,7 +486,7 @@
             return 'https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png';
         }
 
-        function renderBeasiswaGrid() {
+        async function renderBeasiswaGrid() {
             const grid = document.querySelector('.beasiswa-grid');
             if (!grid) return;
             
@@ -501,14 +509,28 @@
                 { judul: "Ranu (Beasiswa Jepang)", periode: "1 Tahun", negara: "Jepang", kuantitas: "25 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Manajemen Logistik dan Transportasi.", tahun: "2020" }
             ];
             
-            const dynamicOffers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
+            let dynamicOffers = [];
+            let appList = [];
+            if (window.supabase) {
+                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
+                dynamicOffers = offersData || [];
+
+                const { data: appsData } = await supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
+                appList = appsData || [];
+            }
+
+            const getSisaKuotaLocal = (judul, kuantitas) => {
+                const totalQuota = parseInt(kuantitas) || 0;
+                const appliedCount = appList.filter(app => app.scholarship_title === judul).length;
+                return Math.max(0, totalQuota - appliedCount);
+            };
+
             const allOffers = [...staticOffers, ...dynamicOffers];
-            
             grid.innerHTML = '';
             
             allOffers.forEach(offer => {
                 const status = calculateOfferStatus(offer.tahun || '2026', offer.periode);
-                const sisaKuota = getSisaKuota(offer.judul, offer.kuantitas);
+                const sisaKuota = getSisaKuotaLocal(offer.judul, offer.kuantitas);
                 
                 if (status === 'Berjalan' && sisaKuota > 0) {
                     const countryIcon = getCountryIcon(offer.negara || '');
@@ -549,7 +571,7 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const nama = localStorage.getItem('asn_nama') || 'ASN';
             const email = localStorage.getItem('asn_email') || 'asn@gmail.com';
             const pass = localStorage.getItem('asn_pass') || 'password123';
@@ -586,9 +608,9 @@
                 profileNameNode.innerHTML = `${nama} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><polyline points="6 9 12 15 18 9"></polyline></svg>`;
             }
 
-            checkVerificationStatus();
-            renderBeasiswaGrid();
-            renderDashboardCharts();
+            await checkVerificationStatus();
+            await renderBeasiswaGrid();
+            await renderDashboardCharts();
             
             // Inisialisasi tampilan default atau dari URL params
             const urlParams = new URLSearchParams(window.location.search);
@@ -603,23 +625,33 @@
         let asnLineChartInstance = null;
         let asnBarChartInstance = null;
 
-        function renderDashboardCharts() {
-            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
-            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+        async function renderDashboardCharts() {
+            let offers = [];
+            let apps = [];
+            if (window.supabase) {
+                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
+                offers = offersData || [];
+
+                const { data: appsData } = await supabase.from('fasker_applications').select('*').is('scholarship_title', null);
+                apps = appsData || [];
+            }
             const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
             const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
 
-            // Hitung Total Tawaran Beasiswa (Hanya yang aktif / tahun 2026)
-            let openOffers = 4; // 4 penawaran default statis untuk tahun 2026
+            // 1. Hitung Total Tawaran Beasiswa (Membaca semua tawaran statis dan dinamis yang masih buka)
+            let openOffers = 4; // 4 Beasiswa statis dari Beranda
             offers.forEach(offer => {
-                const year = offer.tahun || '2026';
-                if (year === '2026') {
+                const startYear = parseInt(offer.tahun) || 2026;
+                const duration = parseInt(offer.periode) || 1;
+                const endYear = startYear + duration;
+                
+                if (endYear > 2026) {
                     openOffers++;
                 }
             });
             document.getElementById('total-tawaran-val').textContent = openOffers;
 
-            // Chart Line: ASN Mendaftar
+            // 2. Chart Line: ASN Mendaftar
             const lineYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
             const defaultStaticRows = [
                 { id: 1, tahun: '2025', status: 'Verified' },
@@ -655,8 +687,13 @@
 
             apps.forEach(app => {
                 const appTahun = app.tahun || '2026';
-                const currentStatus = app.status || 'Pending';
+                let currentStatus = app.status || 'Pending';
                 
+                // Kalau tahun sudah lewat, status Pending dianggap Tidak Diterima (sama seperti admin)
+                if (appTahun !== '2026' && currentStatus === 'Pending') {
+                    currentStatus = 'Unverified';
+                }
+
                 if (diterimaPerYear[appTahun] === undefined) {
                     diterimaPerYear[appTahun] = 0;
                     ditolakPerYear[appTahun] = 0;
@@ -727,7 +764,7 @@
                 }
             });
 
-            // Bar Chart: Total Tawaran Beasiswa
+            // 3. Bar Chart: Total Tawaran Beasiswa per Tahun
             const defaultStaticOffers = [
                 { id: 1, tahun: '2025' }, { id: 2, tahun: '2025' }, { id: 3, tahun: '2024' }, { id: 4, tahun: '2024' },
                 { id: 5, tahun: '2023' }, { id: 6, tahun: '2023' }, { id: 7, tahun: '2022' }, { id: 8, tahun: '2022' },
@@ -772,13 +809,31 @@
         }
 
 
-        function checkVerificationStatus() {
+        async function checkVerificationStatus() {
             const currentNip = localStorage.getItem('asn_nip');
             const currentNama = localStorage.getItem('asn_nama');
             if (!currentNip && !currentNama) return;
             
-            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
-            const userApp = apps.find(app => app.nip === currentNip || app.nama === currentNama);
+            let userApp = null;
+            if (window.supabase) {
+                try {
+                    const { data, error } = await supabase
+                        .from('fasker_applications')
+                        .select('*')
+                        .is('scholarship_title', null)
+                        .or(`nip.eq.${currentNip},nama.eq.${currentNama}`);
+                    if (!error && data && data.length > 0) {
+                        userApp = data[0];
+                    }
+                } catch (err) {
+                    console.error("Error checking verification status from Supabase:", err);
+                }
+            }
+            
+            if (!userApp) {
+                const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
+                userApp = apps.find(app => app.nip === currentNip || app.nama === currentNama);
+            }
             
             if (userApp && userApp.status !== 'Verified') {
                 document.getElementById('verification-lock-overlay').style.display = 'flex';
@@ -828,14 +883,14 @@
             document.getElementById('menu-beasiswa').classList.remove('active');
         }
 
-        function showDashboard() {
+        async function showDashboard() {
             document.getElementById('dashboard-view').style.display = 'block';
             document.getElementById('profile-form').style.display = 'none';
             document.getElementById('beasiswa-view').style.display = 'none';
             document.getElementById('breadcrumb-text').innerText = 'Dashboard';
             resetMenu();
             document.getElementById('menu-dashboard').classList.add('active');
-            renderDashboardCharts(); // Panggil ulang untuk re-render saat diklik
+            await renderDashboardCharts(); // Panggil ulang untuk re-render saat diklik
         }
 
         function showEditProfil() {

@@ -41,6 +41,14 @@
             color: #b0700a;
         }
     </style>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -64,10 +72,30 @@
             <a href="verifikasi.html" class="menu-item">
                 <span class="icon">📋</span> Verifikasi
             </a>
-            <a href="unggah_tawaran.html" class="menu-item active">
-                <span class="icon">📤</span> Unggah Tawaran
-            </a>
+            <div class="menu-item" onclick="toggleSubmenu(this)" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span class="icon">🎓</span> Beasiswa
+                </div>
+                <span class="submenu-arrow" style="font-size: 10px; transform: rotate(180deg); transition: transform 0.2s;">▲</span>
+            </div>
+            <div class="submenu" style="display: flex; flex-direction: column; padding-left: 36px; gap: 12px; margin-top: 4px; margin-bottom: 8px;">
+                <a href="unggah_tawaran.html" class="submenu-item" style="text-decoration: none; color: #d78b10; font-size: 14px; font-weight: 600;">Tawaran Beasiswa</a>
+                <a href="pendaftar.html" class="submenu-item" style="text-decoration: none; color: #4a5568; font-size: 14px; font-weight: 600;">Pendaftar</a>
+            </div>
         </nav>
+        <script>
+            function toggleSubmenu(element) {
+                const submenu = element.nextElementSibling;
+                const arrow = element.querySelector('.submenu-arrow');
+                if (submenu.style.display === 'none') {
+                    submenu.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                } else {
+                    submenu.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                }
+            }
+        </script>
     </aside>
 
     <!-- MAIN CONTENT -->
@@ -333,10 +361,23 @@
             }
         }
 
+        let globalDynamicOffers = [];
+        let globalApplications = [];
+
+        async function loadDataAndRender() {
+            if (window.supabase) {
+                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
+                globalDynamicOffers = offersData || [];
+
+                const { data: appsData } = await supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
+                globalApplications = appsData || [];
+            }
+            renderOfferTable();
+        }
+
         function getSisaKuota(judul, kuantitas) {
             const totalQuota = parseInt(kuantitas) || 0;
-            const apps = JSON.parse(localStorage.getItem('scholarship_applications') || '[]');
-            const appliedCount = apps.filter(app => app.judul === judul).length;
+            const appliedCount = globalApplications.filter(app => app.scholarship_title === judul).length;
             const unit = kuantitas.replace(/[0-9]/g, '').trim() || 'ASN';
             return `${totalQuota - appliedCount} / ${totalQuota} ${unit}`;
         }
@@ -380,14 +421,12 @@
             });
 
             // Remove any dynamically appended rows
-            const staticRowCount = staticRows.length;
-            while (tbody.rows.length > staticRowCount) {
-                tbody.deleteRow(staticRowCount);
-            }
+            const dynamicRows = tbody.querySelectorAll('tr:not([data-id])');
+            dynamicRows.forEach(row => row.remove());
 
             // Load and filter dynamic rows
-            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
-            let visibleIndex = staticRowCount + 1;
+            const offers = globalDynamicOffers;
+            let visibleIndex = staticRows.length + 1;
             
             offers.forEach((offer, idx) => {
                 const offerTahun = offer.tahun || '2024';
@@ -405,6 +444,7 @@
 
                 const sisaText = getSisaKuota(offer.judul, offer.kuantitas);
                 const row = document.createElement('tr');
+                row.setAttribute('data-tahun', offerTahun);
                 row.style.cursor = 'pointer';
                 row.addEventListener('click', (e) => showDynamicOfferDetails(idx, e));
                 row.innerHTML = `
@@ -422,8 +462,16 @@
                     </td>
                     <td>${statusHtml}</td>
                 `;
-                tbody.appendChild(row);
+                tbody.insertBefore(row, tbody.firstChild);
             });
+
+            const allRows = Array.from(tbody.rows);
+            allRows.sort((a, b) => {
+                const yearA = parseInt(a.getAttribute('data-tahun')) || 0;
+                const yearB = parseInt(b.getAttribute('data-tahun')) || 0;
+                return yearB - yearA;
+            });
+            allRows.forEach(row => tbody.appendChild(row));
 
             // Re-sequence numbers of visible rows
             let numbering = 1;
@@ -442,7 +490,7 @@
                 document.getElementById('tahun-select').value = queryTahun;
             }
 
-            renderOfferTable();
+            loadDataAndRender();
         });
 
         function showStaticOfferDetails(id, event) {
@@ -582,23 +630,23 @@
             if (event.target.closest('.status-btn')) {
                 return;
             }
-            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
-            const offer = offers[index];
-            if (!offer) return;
-            
-            const calculatedStatus = calculateOfferStatus(offer.tahun || '2024', offer.periode);
-            const detailOffer = {
-                judul: offer.judul,
-                periode: offer.periode,
-                persyaratan: offer.persyaratan || '-',
-                negara: offer.negara,
-                kuantitas: offer.kuantitas || '20 ASN',
-                tahun: offer.tahun || '2024',
-                detail: offer.detail || '-',
-                status: calculatedStatus
-            };
- 
-            displayOfferModal(detailOffer, "Dinamis (Diunggah)");
+            if (globalDynamicOffers && globalDynamicOffers[index]) {
+                const offer = globalDynamicOffers[index];
+                
+                const calculatedStatus = calculateOfferStatus(offer.tahun || '2024', offer.periode);
+                const detailOffer = {
+                    judul: offer.judul,
+                    periode: offer.periode,
+                    persyaratan: offer.persyaratan || '-',
+                    negara: offer.negara,
+                    kuantitas: offer.kuantitas || '20 ASN',
+                    tahun: offer.tahun || '2024',
+                    detail: offer.detail || '-',
+                    status: calculatedStatus
+                };
+     
+                displayOfferModal(detailOffer, "Dinamis (Diunggah)");
+            }
         }
 
         function displayOfferModal(offer, tipeData) {

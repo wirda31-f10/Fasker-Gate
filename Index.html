@@ -11,6 +11,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -237,6 +245,20 @@
     </footer>
 
     <script src="js/index.js"></script>
+
+    <!-- DETAIL MODAL OVERLAY -->
+    <div id="index-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box">
+            <div class="custom-modal-header">
+                <span style="display:flex; align-items:center; gap:8px;">🔍 Detail Beasiswa</span>
+                <button class="custom-modal-close" onclick="closeIndexModal()">×</button>
+            </div>
+            <div class="custom-modal-body" id="index-modal-body">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
 </body>
 
 </html>

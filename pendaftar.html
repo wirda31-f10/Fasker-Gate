@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftar Beasiswa - Fasker Gate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <style>
+        .custom-context-menu {
+            position: absolute;
+            background: #ffffff;
+            border: 1.5px solid #f0c56b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            padding: 4px 0;
+            z-index: 10000;
+            min-width: 150px;
+            display: none;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #d78b10;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-menu-item:hover {
+            background: #FDF5E6;
+            color: #b0700a;
+        }
+
+        .status-btn.verified {
+            background: #1cc63e !important;
+            color: #fff !important;
+        }
+        .status-btn.unverified {
+            background: #e53935 !important;
+            color: #fff !important;
+        }
+    </style>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="brand-logo" style="text-decoration: none;">
+                <img src="https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png" class="brand-icon" alt="Logo Fasker">
+                <div class="brand-text">
+                    <div class="brand-title"><span>FASKER</span> GATE</div>
+                    <div class="brand-subtitle">Pusat Fasilitas Kerja Sama</div>
+                </div>
+            </a>
+        </div>
+
+        <nav class="sidebar-menu">
+            <a href="admin.html" class="menu-item">
+                <span class="icon">⊞</span> Dashboard
+            </a>
+            <a href="verifikasi.html" class="menu-item">
+                <span class="icon">📋</span> Verifikasi
+            </a>
+            <div class="menu-item" onclick="toggleSubmenu(this)" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <span class="icon">🎓</span> Beasiswa
+                </div>
+                <span class="submenu-arrow" style="font-size: 10px; transform: rotate(180deg); transition: transform 0.2s;">▲</span>
+            </div>
+            <div class="submenu" style="display: flex; flex-direction: column; padding-left: 36px; gap: 12px; margin-top: 4px; margin-bottom: 8px;">
+                <a href="unggah_tawaran.html" class="submenu-item" style="text-decoration: none; color: #4a5568; font-size: 14px; font-weight: 600;">Tawaran Beasiswa</a>
+                <a href="pendaftar.html" class="submenu-item" style="text-decoration: none; color: #d78b10; font-size: 14px; font-weight: 600;">Pendaftar</a>
+            </div>
+        </nav>
+        <script>
+            function toggleSubmenu(element) {
+                const submenu = element.nextElementSibling;
+                const arrow = element.querySelector('.submenu-arrow');
+                if (submenu.style.display === 'none') {
+                    submenu.style.display = 'flex';
+                    arrow.style.transform = 'rotate(180deg)';
+                } else {
+                    submenu.style.display = 'none';
+                    arrow.style.transform = 'rotate(0deg)';
+                }
+            }
+        </script>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-wrapper">
+
+        <!-- TOP NAVBAR -->
+        <header class="top-navbar">
+            <div class="nav-left">
+                <div class="hamburger">☰</div>
+                <div class="welcome-text">Selamat Datang Admin Fasker!</div>
+            </div>
+
+            <div class="nav-right">
+                <img src="https://i.ibb.co.com/27Q5S18X/Logo-Kemendagri-Kementerian-Dalam-Negeri.png" alt="Avatar"
+                    style="width:24px; height:24px; object-fit:contain;">
+                <div class="profile-name">
+                    Pusat Fasker
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" style="width:16px; height:16px;">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT AREA -->
+        <main class="content-area">
+            <div class="breadcrumb" style="margin-bottom: 12px;">Pendaftar Beasiswa</div>
+
+            <!-- FILTER BAR -->
+            <div class="filter-container" style="display: flex; gap: 16px; align-items: flex-end; margin-bottom: 16px;">
+                <div class="filter-group">
+                    <label for="tahun-select" style="font-size: 11px; font-weight: 600; color: #555; display: block; margin-bottom: 4px;">Filter Tahun</label>
+                    <select id="tahun-select" onchange="renderTable()" style="height: 32px; border-radius: 20px; border: 1.5px solid rgba(207, 132, 10, 0.3); padding: 0 16px; outline: none; font-family: inherit; font-size: 12px; min-width: 120px;">
+                        <option value="">Semua Tahun</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="status-select" style="font-size: 11px; font-weight: 600; color: #555; display: block; margin-bottom: 4px;">Filter Status</label>
+                    <select id="status-select" onchange="renderTable()" style="height: 32px; border-radius: 20px; border: 1.5px solid rgba(207, 132, 10, 0.3); padding: 0 16px; outline: none; font-family: inherit; font-size: 12px; min-width: 120px;">
+                        <option value="">Semua Status</option>
+                        <option value="Memenuhi Syarat">Memenuhi Syarat</option>
+                        <option value="Belum Memenuhi Syarat">Belum Memenuhi Syarat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="verifikasi-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Asal Instansi</th>
+                            <th>Pangkat/Gol</th>
+                            <th>NIP</th>
+                            <th>Tahun</th>
+                            <th>Nama Beasiswa</th>
+                            <th>IPK</th>
+                            <th>TOEFL</th>
+                            <th>Detail</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="verifikasi-tbody">
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        
+        const staticASNs = {
+            1: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            2: { nama: "Rian", email: "rian@gmail.com", instansi: "Bappenas", gol: "Gol. II", nip: "765432" },
+            3: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            4: { nama: "Rizky", email: "rizky@gmail.com", instansi: "Kemenkeu", gol: "Gol. IV", nip: "345678" },
+            5: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            6: { nama: "Rafi", email: "rafi@gmail.com", instansi: "Kemenkumham", gol: "Gol. III", nip: "876543" },
+            7: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            8: { nama: "Rama", email: "rama@gmail.com", instansi: "Kemendikbud", gol: "Gol. II", nip: "543210" },
+            9: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            10: { nama: "Rehan", email: "rehan@gmail.com", instansi: "Kementerian ESDM", gol: "Gol. III", nip: "123456" },
+            11: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+            12: { nama: "Roni", email: "roni@gmail.com", instansi: "Kementerian Perhubungan", gol: "Gol. IV", nip: "987654" }
+        };
+
+        const defaultStaticRows = [
+            { id: 1, tahun: '2025', beasiswa: 'Awards Scholarship Australia', ipk: '3.5', toefl: '550' },
+            { id: 2, tahun: '2025', beasiswa: 'Leadership Training In Korea', ipk: '2.8', toefl: '450' },
+            { id: 3, tahun: '2024', beasiswa: 'Fullbright Program USA', ipk: '3.8', toefl: '600' },
+            { id: 4, tahun: '2024', beasiswa: 'JICA Training Program Japan', ipk: '2.5', toefl: '480' },
+            { id: 5, tahun: '2023', beasiswa: 'Awards Scholarship Australia', ipk: '3.2', toefl: '520' },
+            { id: 6, tahun: '2023', beasiswa: 'Leadership Training In Korea', ipk: '3.6', toefl: '540' },
+            { id: 7, tahun: '2022', beasiswa: 'Fullbright Program USA', ipk: '2.9', toefl: '490' },
+            { id: 8, tahun: '2022', beasiswa: 'JICA Training Program Japan', ipk: '3.9', toefl: '610' },
+            { id: 9, tahun: '2021', beasiswa: 'Awards Scholarship Australia', ipk: '2.7', toefl: '470' },
+            { id: 10, tahun: '2021', beasiswa: 'Leadership Training In Korea', ipk: '3.1', toefl: '490' },
+            { id: 11, tahun: '2020', beasiswa: 'Fullbright Program USA', ipk: '2.6', toefl: '510' },
+            { id: 12, tahun: '2020', beasiswa: 'JICA Training Program Japan', ipk: '3.4', toefl: '530' }
+        ];
+
+        function getSyaratFromBeasiswa(judulBeasiswa) {
+            const staticOffers = [
+                { judul: "Awards Scholarship Australia", persyaratan: "IPK > 3.0, TOEFL > 500" },
+                { judul: "Leadership Training In Korea", persyaratan: "IPK > 3.0, TOEFL > 500" },
+                { judul: "Fullbright Program USA", persyaratan: "IPK > 3.0, TOEFL > 500" },
+                { judul: "JICA Training Program Japan", persyaratan: "IPK > 3.0, TOEFL > 500" },
+                { judul: "Ranu (Beasiswa Thailand)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Vietnam)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Singapura)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Malaysia)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Kamboja)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Amerika)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Inggris)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Australia)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Selandia Baru)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Korea)", persyaratan: "IPK > 3.0" },
+                { judul: "Ranu (Beasiswa Jepang)", persyaratan: "IPK > 3.0" }
+            ];
+            
+            const dynamicOffers = window.allScholarshipsList || [];
+            const allOffers = [...staticOffers, ...dynamicOffers];
+            
+            const offer = allOffers.find(o => o.judul === judulBeasiswa);
+            
+            let minIpk = 0;
+            let minToefl = 0;
+            
+            if (offer && offer.persyaratan) {
+                const ipkMatch = offer.persyaratan.match(/IPK\s*[>=]\s*([\d\.]+)/i);
+                if (ipkMatch) minIpk = parseFloat(ipkMatch[1]);
+                
+                const toeflMatch = offer.persyaratan.match(/TOEFL\s*[>=]\s*(\d+)/i);
+                if (toeflMatch) minToefl = parseInt(toeflMatch[1]);
+            }
+            
+            return { minIpk, minToefl };
+        }
+
+        function checkSyarat(ipk, toefl, judulBeasiswa, fileSurat, fileFormulir, fileCv, fileToefl) {
+            const ipkVal = parseFloat(ipk) || 0;
+            const toeflVal = parseInt(toefl) || 0;
+            
+            // Cek kesesuaian file PDF yang diinput (apakah ada/lengkap)
+            if (!fileSurat || !fileFormulir || !fileCv || !fileToefl) {
+                return "Belum Memenuhi Syarat";
+            }
+            
+            const syarat = getSyaratFromBeasiswa(judulBeasiswa);
+            
+            if (ipkVal >= syarat.minIpk && toeflVal >= syarat.minToefl) {
+                return "Memenuhi Syarat";
+            }
+            return "Belum Memenuhi Syarat";
+        }
+
+        async function renderTable() {
+            const tbody = document.getElementById('verifikasi-tbody');
+            const selectedTahun = document.getElementById('tahun-select').value;
+            const selectedStatus = document.getElementById('status-select').value;
+            
+            const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
+            
+            tbody.innerHTML = '';
+            const rowsToRender = [];
+
+            // Add dynamic rows and scholarships from Supabase
+            let apps = [];
+            let offers = [];
+            if (window.supabase) {
+                try {
+                    const { data: appsData, error: appsError } = await supabase
+                        .from('fasker_applications')
+                        .select('*')
+                        .not('scholarship_title', 'is', null);
+                    if (!appsError && appsData) {
+                        apps = appsData;
+                    }
+                    
+                    const { data: offersData, error: offersError } = await supabase
+                        .from('fasker_scholarships')
+                        .select('*');
+                    if (!offersError && offersData) {
+                        offers = offersData;
+                    }
+                } catch (err) {
+                    console.error("Error fetching data from Supabase:", err);
+                }
+            }
+            window.currentDynamicApps = apps;
+            window.allScholarshipsList = offers;
+
+            // Add static rows
+            defaultStaticRows.forEach(row => {
+                if (deletedStatics.includes(row.id)) return;
+                
+                const asnData = staticASNs[row.id];
+                const mockSurat = `${asnData.nama.toLowerCase()}_surat_permohonan.pdf`;
+                const mockFormulir = `${asnData.nama.toLowerCase()}_formulir_lamaran.pdf`;
+                const mockCv = `${asnData.nama.toLowerCase()}_cv.pdf`;
+                const mockToefl = `${asnData.nama.toLowerCase()}_toefl.pdf`;
+                const status = checkSyarat(row.ipk, row.toefl, row.beasiswa, mockSurat, mockFormulir, mockCv, mockToefl);
+                
+                const matchesTahun = !selectedTahun || row.tahun === selectedTahun;
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+                
+                if (matchesTahun && matchesStatus) {
+                    const statusHtml = status === 'Memenuhi Syarat' 
+                        ? `<button class="status-btn verified" style="pointer-events: none; cursor: default; width: 130px; font-size: 11px;">Memenuhi Syarat</button>`
+                        : `<button class="status-btn unverified" style="pointer-events: none; cursor: default; width: 140px; font-size: 11px;">Belum Memenuhi</button>`;
+                        
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-type', 'static');
+                    tr.setAttribute('data-id', row.id);
+                    tr.setAttribute('data-tahun', row.tahun);
+                    tr.style.cursor = 'pointer';
+                    tr.addEventListener('click', (e) => showStaticDetails(row.id, e));
+                    
+                    tr.innerHTML = `
+                        <td></td>
+                        <td><input type="text" class="table-input" value="${asnData.nama}" readonly style="pointer-events: none;"></td>
+                        <td><input type="text" class="table-input" value="${asnData.instansi}" readonly style="pointer-events: none;"></td>
+                        <td><input type="text" class="table-input" value="${asnData.gol}" readonly style="pointer-events: none; width: 60px;"></td>
+                        <td><input type="text" class="table-input" value="${asnData.nip}" readonly style="pointer-events: none;"></td>
+                        <td><input type="text" class="table-input" value="${row.tahun}" readonly style="pointer-events: none; width: 45px;"></td>
+                        <td><input type="text" class="table-input" value="${row.beasiswa}" readonly style="pointer-events: none; width: 140px;"></td>
+                        <td><input type="text" class="table-input" value="${row.ipk}" readonly style="pointer-events: none; width: 35px; text-align: center;"></td>
+                        <td><input type="text" class="table-input" value="${row.toefl}" readonly style="pointer-events: none; width: 45px; text-align: center;"></td>
+                        <td>
+                            <button class="btn-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </button>
+                        </td>
+                        <td>${statusHtml}</td>
+                    `;
+                    rowsToRender.push(tr);
+                }
+            });
+
+            apps.forEach((app, idx) => {
+                const appTahun = app.tahun || '2026';
+                const appBeasiswa = app.scholarship_title || 'Awards Scholarship Australia';
+                
+                // Assign mock ipk and toefl if not exist in app data
+                const appIpk = app.ipk || (idx % 2 === 0 ? '3.5' : '2.8');
+                const appToefl = app.toefl || (idx % 2 === 0 ? '520' : '480');
+                
+                // Get files from app or mock
+                const appSurat = app.surat || 'surat_permohonan.pdf';
+                const appFormulir = app.formulir || 'formulir_lamaran.pdf';
+                const appCv = app.cv || 'cv.pdf';
+                const appSertifikatToefl = app.toefl || 'toefl.pdf';
+                
+                const status = checkSyarat(appIpk, appToefl, appBeasiswa, appSurat, appFormulir, appCv, appSertifikatToefl);
+                
+                if (selectedTahun && appTahun !== selectedTahun) return;
+                if (selectedStatus && status !== selectedStatus) return;
+                
+                const statusHtml = status === 'Memenuhi Syarat' 
+                        ? `<button class="status-btn verified" style="pointer-events: none; cursor: default; width: 130px; font-size: 11px;">Memenuhi Syarat</button>`
+                        : `<button class="status-btn unverified" style="pointer-events: none; cursor: default; width: 140px; font-size: 11px;">Belum Memenuhi</button>`;
+                        
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-type', 'dynamic');
+                tr.setAttribute('data-index', idx);
+                tr.setAttribute('data-tahun', appTahun);
+                tr.style.cursor = 'pointer';
+                tr.addEventListener('click', (e) => showDynamicDetails(idx, e));
+                
+                tr.innerHTML = `
+                    <td></td>
+                    <td><input type="text" class="table-input" value="${app.nama}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${app.instansi}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${app.gol}" readonly style="pointer-events: none; width: 60px;"></td>
+                    <td><input type="text" class="table-input" value="${app.nip}" readonly style="pointer-events: none;"></td>
+                    <td><input type="text" class="table-input" value="${appTahun}" readonly style="pointer-events: none; width: 45px;"></td>
+                    <td><input type="text" class="table-input" value="${appBeasiswa}" readonly style="pointer-events: none; width: 140px;"></td>
+                    <td><input type="text" class="table-input" value="${appIpk}" readonly style="pointer-events: none; width: 35px; text-align: center;"></td>
+                    <td><input type="text" class="table-input" value="${appToefl}" readonly style="pointer-events: none; width: 45px; text-align: center;"></td>
+                    <td>
+                        <button class="btn-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                        </button>
+                    </td>
+                    <td>${statusHtml}</td>
+                `;
+                rowsToRender.push(tr);
+            });
+
+            // Sort and append
+            rowsToRender.sort((a, b) => {
+                const yearA = parseInt(a.getAttribute('data-tahun')) || 0;
+                const yearB = parseInt(b.getAttribute('data-tahun')) || 0;
+                return yearB - yearA;
+            });
+            
+            let visibleIndex = 1;
+            rowsToRender.forEach(row => {
+                row.cells[0].textContent = `${visibleIndex++}.`;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function showStaticDetails(id, event) {
+
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            
+            const staticASNs = {
+                1: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                2: { nama: "Rian", email: "rian@gmail.com", instansi: "Bappenas", gol: "Gol. II", nip: "765432" },
+                3: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                4: { nama: "Rizky", email: "rizky@gmail.com", instansi: "Kemenkeu", gol: "Gol. IV", nip: "345678" },
+                5: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                6: { nama: "Rafi", email: "rafi@gmail.com", instansi: "Kemenkumham", gol: "Gol. III", nip: "876543" },
+                7: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                8: { nama: "Rama", email: "rama@gmail.com", instansi: "Kemendikbud", gol: "Gol. II", nip: "543210" },
+                9: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                10: { nama: "Rehan", email: "rehan@gmail.com", instansi: "Kementerian ESDM", gol: "Gol. III", nip: "123456" },
+                11: { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" },
+                12: { nama: "Roni", email: "roni@gmail.com", instansi: "Kementerian Perhubungan", gol: "Gol. IV", nip: "987654" }
+            };
+
+            const selectedASN = staticASNs[id] || { nama: "Ranu", email: "ranu@gmail.com", instansi: "KemenDagri", gol: "Gol. III", nip: "234567" };
+            
+            const mockASN = {
+                nama: selectedASN.nama,
+                email: selectedASN.email,
+                hp: "08123456789",
+                instansi: selectedASN.instansi,
+                nip: selectedASN.nip,
+                gol: selectedASN.gol,
+                jabatan: "Pranata Komputer",
+                surat: `${selectedASN.nama.toLowerCase()}_surat_permohonan.pdf`,
+                formulir: `${selectedASN.nama.toLowerCase()}_formulir_lamaran.pdf`,
+                cv: `${selectedASN.nama.toLowerCase()}_cv.pdf`,
+                toefl: `${selectedASN.nama.toLowerCase()}_toefl.pdf`
+            };
+            
+            displayDetailModal(mockASN, "Statis (Bawaan)");
+        }
+
+        function showDynamicDetails(index, event) {
+            if (event.target.closest('.status-btn')) {
+                return;
+            }
+            if (window.currentDynamicApps && window.currentDynamicApps[index]) {
+                const app = window.currentDynamicApps[index];
+                displayDetailModal(app, "Dinamis (Pendaftaran)");
+            }
+        }
+
+        function displayDetailModal(asn, tipeData) {
+            const body = document.getElementById('detail-modal-body');
+            body.innerHTML = `
+                <div style="font-family:'Montserrat', sans-serif;">
+                    <strong style="display:block; margin-bottom: 12px; color: #1a365d;">Dokumen yang Dicantumkan ASN:</strong>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.surat}')">📄 Surat Permohonan: <span style="text-decoration:underline;">${asn.surat}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.formulir}')">📄 Formulir Lamaran: <span style="text-decoration:underline;">${asn.formulir}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.cv}')">📄 Curriculum Vitae (CV): <span style="text-decoration:underline;">${asn.cv}</span></a>
+                        <a href="#" class="doc-link" style="color:#0d6efd; text-decoration:none; display:flex; align-items:center; gap:6px;" onclick="event.preventDefault(); alert('Membuka file: ${asn.toefl}')">📄 Sertifikat TOEFL: <span style="text-decoration:underline;">${asn.toefl}</span></a>
+                    </div>
+                </div>
+            `;
+            
+            const modal = document.getElementById('detail-modal');
+            modal.classList.add('active');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.remove('active');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+        });
+    </script>
+
+    <!-- DETAIL MODAL OVERLAY -->
+    <div id="detail-modal" class="custom-modal-overlay">
+        <div class="custom-modal-box" style="width: 480px;">
+            <div class="custom-modal-header" style="background:#FDF5E6; color:#1a365d; font-weight:700;">
+                🔍 Detail Dokumen Pemohon
+            </div>
+            <div class="custom-modal-body" id="detail-modal-body" style="font-weight: 500; font-size: 13px; line-height: 1.6; text-align: left; padding: 24px;">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="custom-modal-footer" style="padding: 0 24px 20px;">
+                <button class="custom-modal-btn" onclick="closeDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

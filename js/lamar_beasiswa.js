@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function submitLamaran() {
+async function submitLamaran() {
     // Get the profile name or account name
     const profileNameEl = document.querySelector('.profile-name');
     let accountName = "ASN";
@@ -80,21 +80,49 @@ function submitLamaran() {
         accountName = "ASN";
     }
 
-    // Save application to localStorage for quota tracking
-    const currentNip = localStorage.getItem('asn_nip') || '234567';
     const titleEl = document.getElementById('lamar-title');
     const title = titleEl ? titleEl.innerText.trim() : '';
-    if (title) {
-        const apps = JSON.parse(localStorage.getItem('scholarship_applications') || '[]');
-        const alreadyApplied = apps.some(app => app.nip === currentNip && app.judul === title);
-        if (!alreadyApplied) {
-            apps.push({
-                nip: currentNip,
+
+    if (title && window.supabase) {
+        const currentNip = localStorage.getItem('asn_nip') || '234567';
+        
+        // Cek apakah sudah pernah melamar beasiswa ini
+        const { data: existingApps, error: checkError } = await window.supabase
+            .from('fasker_applications')
+            .select('id')
+            .eq('nip', currentNip)
+            .eq('scholarship_title', title);
+        
+        if (checkError) {
+            console.error("Error checking existing applications:", checkError);
+        }
+
+        if (!existingApps || existingApps.length === 0) {
+            const newApp = {
                 nama: accountName,
-                judul: title,
-                tanggal: new Date().toLocaleDateString()
-            });
-            localStorage.setItem('scholarship_applications', JSON.stringify(apps));
+                email: localStorage.getItem('asn_email') || '',
+                hp: localStorage.getItem('asn_hp') || '',
+                instansi: localStorage.getItem('asn_instansi') || '',
+                nip: currentNip,
+                gol: localStorage.getItem('asn_gol') || '',
+                jabatan: localStorage.getItem('asn_jabatan') || '',
+                surat: localStorage.getItem('asn_surat') || 'surat_permohonan.pdf',
+                formulir: localStorage.getItem('asn_formulir') || 'formulir_lamaran.pdf',
+                cv: localStorage.getItem('asn_cv') || 'cv.pdf',
+                toefl: localStorage.getItem('asn_toefl') || 'toefl.pdf',
+                tahun: '2026',
+                status: 'Pending',
+                scholarship_title: title
+            };
+
+            const { error: insertError } = await window.supabase
+                .from('fasker_applications')
+                .insert([newApp]);
+            
+            if (insertError) {
+                alert('Gagal mengirim lamaran beasiswa: ' + insertError.message);
+                return;
+            }
         }
     }
 

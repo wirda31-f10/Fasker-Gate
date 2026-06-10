@@ -26,6 +26,14 @@
             margin: auto;
         }
     </style>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -58,7 +66,7 @@
     </div>
 
     <script>
-        function handleSaveData() {
+        async function handleSaveData() {
             const tempAsnStr = localStorage.getItem('temp_asn');
             const tempAsn = tempAsnStr ? JSON.parse(tempAsnStr) : {
                 nama: 'Bakti',
@@ -75,12 +83,31 @@
             const fCv = document.getElementById('inputCv').files[0];
             const fToefl = document.getElementById('inputToefl').files[0];
 
-            const surat = fSurat ? fSurat.name : (localStorage.getItem('asn_surat') || '');
-            const formulir = fFormulir ? fFormulir.name : (localStorage.getItem('asn_formulir') || '');
-            const cv = fCv ? fCv.name : (localStorage.getItem('asn_cv') || '');
-            const toefl = fToefl ? fToefl.name : (localStorage.getItem('asn_toefl') || '');
+            const surat = fSurat ? fSurat.name : (localStorage.getItem('asn_surat') || 'surat_permohonan.pdf');
+            const formulir = fFormulir ? fFormulir.name : (localStorage.getItem('asn_formulir') || 'formulir_lamaran.pdf');
+            const cv = fCv ? fCv.name : (localStorage.getItem('asn_cv') || 'cv.pdf');
+            const toefl = fToefl ? fToefl.name : (localStorage.getItem('asn_toefl') || 'toefl.pdf');
             
-            // Create new application with full details
+            // 1. Simpan ke fasker_users di Supabase
+            const { error: userError } = await supabase
+                .from('fasker_users')
+                .insert([{
+                    nama: tempAsn.nama,
+                    email: tempAsn.email,
+                    pass: tempAsn.pass,
+                    hp: tempAsn.hp,
+                    instansi: tempAsn.instansi,
+                    nip: tempAsn.nip,
+                    gol: tempAsn.gol,
+                    jabatan: tempAsn.jabatan
+                }]);
+
+            if (userError) {
+                alert('Gagal registrasi user: ' + userError.message);
+                return;
+            }
+
+            // 2. Simpan ke fasker_applications di Supabase (sebagai berkas registrasi akun)
             const newApp = {
                 nama: tempAsn.nama,
                 email: tempAsn.email,
@@ -89,19 +116,24 @@
                 nip: tempAsn.nip,
                 gol: tempAsn.gol,
                 jabatan: tempAsn.jabatan,
-                surat: surat || 'surat_permohonan.pdf',
-                formulir: formulir || 'formulir_lamaran.pdf',
-                cv: cv || 'cv.pdf',
-                toefl: toefl || 'toefl.pdf',
+                surat: surat,
+                formulir: formulir,
+                cv: cv,
+                toefl: toefl,
                 tahun: '2026',
-                status: 'Pending'
+                status: 'Pending',
+                scholarship_title: null // Berkas registrasi
             };
-            
-            // Get existing applications array, append, and save
-            const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
-            apps.push(newApp);
-            localStorage.setItem('asn_applications', JSON.stringify(apps));
-            
+
+            const { error: appError } = await supabase
+                .from('fasker_applications')
+                .insert([newApp]);
+
+            if (appError) {
+                alert('Gagal mengirim berkas registrasi: ' + appError.message);
+                return;
+            }
+
             // Clean up temporary registration data
             localStorage.removeItem('temp_asn');
             
@@ -119,7 +151,8 @@
             localStorage.setItem('asn_cv', cv);
             localStorage.setItem('asn_toefl', toefl);
             
-            window.location.href = 'asn.html';
+            alert('Pendaftaran berhasil! Akun Anda sedang dalam proses verifikasi oleh Admin.');
+            window.location.href = 'masuk.html';
         }
         
         document.addEventListener('DOMContentLoaded', () => {

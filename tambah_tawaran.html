@@ -10,6 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -89,7 +97,7 @@
     </div>
 
     <script>
-        function handleTambahTawaran() {
+        async function handleTambahTawaran() {
             const judul = document.getElementById('tambah-judul').value.trim();
             const periode = document.getElementById('tambah-periode').value.trim();
             const negara = document.getElementById('tambah-negara').value.trim();
@@ -124,9 +132,12 @@
                 tahun: tahun || '2026'
             };
 
-            const offers = JSON.parse(localStorage.getItem('uploaded_scholarships') || '[]');
-            offers.push(newOffer);
-            localStorage.setItem('uploaded_scholarships', JSON.stringify(offers));
+            const { error } = await supabase.from('fasker_scholarships').insert([newOffer]);
+
+            if (error) {
+                alert('Gagal mengunggah beasiswa: ' + error.message);
+                return;
+            }
 
             alert('Beasiswa Berhasil Diunggah!');
             window.location.href = 'unggah_tawaran.html';

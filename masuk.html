@@ -10,6 +10,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="css/masuk.css">
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
+        const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
 </head>
 
 <body>
@@ -89,29 +97,57 @@
             overlay.querySelector('div').style.transform = 'scale(1)';
         }
 
-        function handleLogin() {
+        async function handleLogin() {
             const email = document.getElementById('loginEmail').value.toLowerCase().trim();
             if (email.includes('admin')) {
                 window.location.href = 'admin.html';
             } else {
-                const registeredEmail = localStorage.getItem('asn_email');
-                if (!registeredEmail || registeredEmail.toLowerCase() !== email) {
+                // 1. Check user in fasker_users
+                const { data: userList, error: userError } = await supabase
+                    .from('fasker_users')
+                    .select('*')
+                    .eq('email', email);
+                
+                if (userError || !userList || userList.length === 0) {
                     showAlert('Halo', 'Email belum terdaftar. Silakan buat akun terlebih dahulu.');
                     return;
                 }
+                const user = userList[0];
                 
-                const asnNama = localStorage.getItem('asn_nama') || 'ASN';
-                const apps = JSON.parse(localStorage.getItem('asn_applications') || '[]');
-                const userApp = apps.find(app => (app.email && app.email.toLowerCase() === email) || app.nama === asnNama);
+                // 2. Check registration status in fasker_applications
+                const { data: appList, error: appError } = await supabase
+                    .from('fasker_applications')
+                    .select('*')
+                    .eq('email', email)
+                    .is('scholarship_title', null);
                 
-                if (!userApp || userApp.status !== 'Verified') {
-                    if (userApp && userApp.status === 'Unverified') {
-                        showAlert('Halo, ' + asnNama, 'Mohon maaf, pendaftaran Anda ditolak oleh Admin.');
+                if (appError || !appList || appList.length === 0) {
+                    showAlert('Halo, ' + user.nama, 'Data berkas pendaftaran Anda tidak ditemukan.');
+                    return;
+                }
+                const userApp = appList[0];
+                
+                if (userApp.status !== 'Verified') {
+                    if (userApp.status === 'Unverified') {
+                        showAlert('Halo, ' + user.nama, 'Mohon maaf, pendaftaran Anda ditolak oleh Admin.');
                     } else {
-                        showAlert('Halo, ' + asnNama, 'Data Anda belum diverifikasi oleh Admin. Harap menunggu proses verifikasi sebelum masuk.');
+                        showAlert('Halo, ' + user.nama, 'Data Anda belum diverifikasi oleh Admin. Harap menunggu proses verifikasi sebelum masuk.');
                     }
                     return;
                 }
+                
+                // Populate active session in localStorage
+                localStorage.setItem('asn_nama', user.nama);
+                localStorage.setItem('asn_email', user.email);
+                localStorage.setItem('asn_hp', user.hp || '');
+                localStorage.setItem('asn_instansi', user.instansi || '');
+                localStorage.setItem('asn_nip', user.nip || '');
+                localStorage.setItem('asn_gol', user.gol || '');
+                localStorage.setItem('asn_jabatan', user.jabatan || '');
+                localStorage.setItem('asn_surat', userApp.surat || '');
+                localStorage.setItem('asn_formulir', userApp.formulir || '');
+                localStorage.setItem('asn_cv', userApp.cv || '');
+                localStorage.setItem('asn_toefl', userApp.toefl || '');
                 
                 window.location.href = 'asn.html';
             }
