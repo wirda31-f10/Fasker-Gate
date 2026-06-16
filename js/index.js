@@ -1,40 +1,40 @@
 // Data Statis Beasiswa
-const staticOffers = [
-    { judul: "Awards Scholarship Australia", instansi: "Pemerintah Australia", kuota: "50", batas: "30-11-2026", persyaratan: "IPK > 3.0, TOEFL > 500", logo: "https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png" },
-    { judul: "Leadership Training In Korea", instansi: "KOICA", kuota: "30", batas: "15-12-2026", persyaratan: "IPK > 3.0, TOEFL > 500", logo: "https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png" },
-    { judul: "Fullbright Program USA", instansi: "AMINEF", kuota: "40", batas: "20-01-2027", persyaratan: "IPK > 3.2, TOEFL > 550", logo: "https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png" },
-    { judul: "JICA Training Program Japan", instansi: "JICA", kuota: "25", batas: "10-02-2027", persyaratan: "IPK > 3.0, TOEFL > 500", logo: "https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png" }
-];
+const staticOffers = [];
 
 async function getAllOffers() {
+    if (!window.supabase) return [];
     const { data: dynamicOffersList, error } = await window.supabase.from('fasker_scholarships').select('*');
-    if (error) console.error("Error fetching scholarships:", error);
+    if (error) {
+        console.error("Error fetching scholarships:", error);
+        return [];
+    }
     const dynamicOffers = dynamicOffersList || [];
-    // Add default logo if missing
+    
+    // Add default logo if missing, or map to predefined beautiful icons
     dynamicOffers.forEach(o => {
-        if (!o.logo) o.logo = "https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png";
+        if (o.judul === "Awards Scholarship Australia") {
+            o.logo = "https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png";
+        } else if (o.judul === "Leadership Training In Korea") {
+            o.logo = "https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png";
+        } else if (o.judul === "Fullbright Program USA") {
+            o.logo = "https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png";
+        } else if (o.judul === "JICA Training Program Japan") {
+            o.logo = "https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png";
+        } else if (!o.logo) {
+            o.logo = "https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png";
+        }
     });
-    const all = [...staticOffers, ...dynamicOffers];
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    return all.filter(offer => {
-        // Jika beasiswa dari admin (memiliki tahun dan periode)
+    return dynamicOffers.filter(offer => {
+        // Jika beasiswa memiliki tahun dan periode
         if (offer.tahun) {
             const startYear = parseInt(offer.tahun) || 2026;
             const duration = parseInt(offer.periode) || 1;
             const endYear = startYear + duration;
             
-            // Logika dari admin.html: Jika endYear <= 2026 berarti 'Selesai' (Tutup)
-            return true; // Tampilkan yang 'Berjalan'
+            // Tampilkan hanya yang masih aktif (endYear > 2026)
+            return endYear > 2026;
         }
-        
-        // Jika beasiswa bawaan (memiliki batas tanggal spesifik)
-        if (offer.batas) {
-            return true;
-        }
-        
         return true;
     });
 }
@@ -50,10 +50,9 @@ function openIndexModal(offer) {
                 <h3 class="modal-title">${offer.judul}</h3>
             </div>
             <div style="margin-top: 20px;">
-                <div class="modal-detail-row"><strong>Instansi Penyelenggara:</strong> ${offer.instansi || '-'}</div>
+                <div class="modal-detail-row"><strong>Instansi Penyelenggara:</strong> ${offer.negara || '-'}</div>
                 <div class="modal-detail-row"><strong>Tahun:</strong> ${offer.tahun || '2026'}</div>
-                <div class="modal-detail-row"><strong>Kuota:</strong> ${offer.kuota || '-'}</div>
-                <div class="modal-detail-row"><strong>Batas Pendaftaran:</strong> ${offer.batas || '-'}</div>
+                <div class="modal-detail-row"><strong>Kuota:</strong> ${offer.kuantitas || '-'}</div>
                 <div class="modal-detail-row"><strong>Persyaratan:</strong> ${offer.persyaratan || '-'}</div>
                 <div class="modal-detail-row">
                     <strong>Dokumen Wajib:</strong><br>
@@ -109,7 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const query = searchInput.value.trim().toLowerCase();
             if (query) {
                 const allOffers = await getAllOffers();
-                const matched = allOffers.find(o => o.judul.toLowerCase().includes(query) || (o.instansi && o.instansi.toLowerCase().includes(query)));
+                const matched = allOffers.find(o => o.judul.toLowerCase().includes(query) || (o.negara && o.negara.toLowerCase().includes(query)));
                 if (matched) {
                     openIndexModal(matched);
                 } else {
@@ -146,11 +145,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             totalVerified = regApps.filter(a => a.status === 'Verified').length;
             totalPending = regApps.filter(a => (a.status || 'Pending') === 'Pending').length;
         }
-    }
-
-    if (localStorage.getItem('asn_applications_seeded') !== 'true') {
-        totalApps += 12;
-        totalVerified += 6;
     }
 
     const totalRekomendasi = totalVerified + totalPending;

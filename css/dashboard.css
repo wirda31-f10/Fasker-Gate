@@ -9,7 +9,9 @@
 }
 
 body {
-    width: 100vw;
+    width: 100%;
+    min-width: 1180px;
+    margin: 0 auto;
     height: 100vh;
     display: flex;
     overflow: hidden;

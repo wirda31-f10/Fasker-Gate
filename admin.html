@@ -153,11 +153,8 @@
                 }
             }
 
-            const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
-            const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
-
-            // 2. Hitung Total Tawaran Beasiswa (Hanya data tahun 2026 yang benar-benar ada)
-            let openOffers = 4; // 4 Beasiswa Statis dari Beranda yang selalu aktif
+            // 2. Hitung Total Tawaran Beasiswa (Hanya data aktif yang endYear > 2026)
+            let openOffers = 0;
 
             offers.forEach(offer => {
              const startYear = parseInt(offer.tahun) || 2026;
@@ -171,39 +168,11 @@
 
             document.getElementById('total-tawaran-val').textContent = openOffers;
 
-            // 3. Hitung pendaftaran ASN aktif (statis + dinamis) per tahun untuk Line Chart
+            // 3. Hitung pendaftaran ASN aktif per tahun untuk Line Chart (dinamis dari database)
             const lineYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
-            const defaultStaticRows = [
-                { id: 1, tahun: '2025', status: 'Verified' },
-                { id: 2, tahun: '2025', status: 'Unverified' },
-                { id: 3, tahun: '2024', status: 'Verified' },
-                { id: 4, tahun: '2024', status: 'Unverified' },
-                { id: 5, tahun: '2023', status: 'Verified' },
-                { id: 6, tahun: '2023', status: 'Verified' },
-                { id: 7, tahun: '2022', status: 'Unverified' },
-                { id: 8, tahun: '2022', status: 'Verified' },
-                { id: 9, tahun: '2021', status: 'Unverified' },
-                { id: 10, tahun: '2021', status: 'Unverified' },
-                { id: 11, tahun: '2020', status: 'Unverified' },
-                { id: 12, tahun: '2020', status: 'Verified' }
-            ];
-
             const diterimaPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
             const ditolakPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
             const prosesPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
-
-            defaultStaticRows.forEach(row => {
-                if (!deletedStatics.includes(row.id)) {
-                    const currentStatus = staticStatuses[row.id] || row.status;
-                    if (currentStatus === 'Verified') {
-                        diterimaPerYear[row.tahun]++;
-                    } else if (currentStatus === 'Unverified') {
-                        ditolakPerYear[row.tahun]++;
-                    } else {
-                        prosesPerYear[row.tahun]++;
-                    }
-                }
-            });
 
             apps.forEach(app => {
              const appTahun = app.tahun || '2026';
@@ -350,25 +319,7 @@
             const ctxBar = document.getElementById('barChart').getContext('2d');
             
             const barYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
-            const defaultStaticOffers = [
-                { id: 1, tahun: '2025' },
-                { id: 2, tahun: '2025' },
-                { id: 3, tahun: '2024' },
-                { id: 4, tahun: '2024' },
-                { id: 5, tahun: '2023' },
-                { id: 6, tahun: '2023' },
-                { id: 7, tahun: '2022' },
-                { id: 8, tahun: '2022' },
-                { id: 9, tahun: '2021' },
-                { id: 10, tahun: '2021' },
-                { id: 11, tahun: '2020' },
-                { id: 12, tahun: '2020' }
-            ];
-
             const offersPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
-            defaultStaticOffers.forEach(offer => {
-                offersPerYear[offer.tahun]++;
-            });
 
             offers.forEach(offer => {
                 const offerTahun = offer.tahun || '2026'; // Default to 2026 for new ones

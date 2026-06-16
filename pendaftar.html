@@ -202,20 +202,7 @@
             12: { nama: "Roni", email: "roni@gmail.com", instansi: "Kementerian Perhubungan", gol: "Gol. IV", nip: "987654" }
         };
 
-        const defaultStaticRows = [
-            { id: 1, tahun: '2025', beasiswa: 'Awards Scholarship Australia', ipk: '3.5', toefl: '550' },
-            { id: 2, tahun: '2025', beasiswa: 'Leadership Training In Korea', ipk: '2.8', toefl: '450' },
-            { id: 3, tahun: '2024', beasiswa: 'Fullbright Program USA', ipk: '3.8', toefl: '600' },
-            { id: 4, tahun: '2024', beasiswa: 'JICA Training Program Japan', ipk: '2.5', toefl: '480' },
-            { id: 5, tahun: '2023', beasiswa: 'Awards Scholarship Australia', ipk: '3.2', toefl: '520' },
-            { id: 6, tahun: '2023', beasiswa: 'Leadership Training In Korea', ipk: '3.6', toefl: '540' },
-            { id: 7, tahun: '2022', beasiswa: 'Fullbright Program USA', ipk: '2.9', toefl: '490' },
-            { id: 8, tahun: '2022', beasiswa: 'JICA Training Program Japan', ipk: '3.9', toefl: '610' },
-            { id: 9, tahun: '2021', beasiswa: 'Awards Scholarship Australia', ipk: '2.7', toefl: '470' },
-            { id: 10, tahun: '2021', beasiswa: 'Leadership Training In Korea', ipk: '3.1', toefl: '490' },
-            { id: 11, tahun: '2020', beasiswa: 'Fullbright Program USA', ipk: '2.6', toefl: '510' },
-            { id: 12, tahun: '2020', beasiswa: 'JICA Training Program Japan', ipk: '3.4', toefl: '530' }
-        ];
+        const defaultStaticRows = [];
 
         function getSyaratFromBeasiswa(judulBeasiswa) {
             const staticOffers = [
@@ -362,9 +349,9 @@
                 const appTahun = app.tahun || '2026';
                 const appBeasiswa = app.scholarship_title || 'Awards Scholarship Australia';
                 
-                // Assign mock ipk and toefl if not exist in app data
+                // Assign mock ipk and toefl, making sure to avoid using the PDF filename as a score
                 const appIpk = app.ipk || (idx % 2 === 0 ? '3.5' : '2.8');
-                const appToefl = app.toefl || (idx % 2 === 0 ? '520' : '480');
+                const appToefl = (app.toefl && !app.toefl.includes('.pdf') && !app.toefl.startsWith('http')) ? app.toefl : (idx % 2 === 0 ? '520' : '480');
                 
                 // Get files from app or mock
                 const appSurat = app.surat || 'surat_permohonan.pdf';
@@ -372,7 +359,16 @@
                 const appCv = app.cv || 'cv.pdf';
                 const appSertifikatToefl = app.toefl || 'toefl.pdf';
                 
-                const status = checkSyarat(appIpk, appToefl, appBeasiswa, appSurat, appFormulir, appCv, appSertifikatToefl);
+                // Determine eligibility status from database status
+                let status = 'Belum Memenuhi';
+                if (app.status === 'Verified') {
+                    status = 'Memenuhi Syarat';
+                } else if (app.status === 'Unverified') {
+                    status = 'Belum Memenuhi';
+                } else {
+                    // Fallback to calculation
+                    status = checkSyarat(appIpk, appToefl, appBeasiswa, appSurat, appFormulir, appCv, appSertifikatToefl);
+                }
                 
                 if (selectedTahun && appTahun !== selectedTahun) return;
                 if (selectedStatus && status !== selectedStatus) return;
