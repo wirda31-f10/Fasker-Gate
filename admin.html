@@ -246,12 +246,12 @@
                     ]
                 },
                 options: {
-                    onClick: (event, activeElements) => {
+                    onClick: (event, activeElements, chart) => {
                         if (activeElements.length > 0) {
                             const activeElement = activeElements[0];
                             const index = activeElement.index;
                             const datasetIndex = activeElement.datasetIndex;
-                            const year = lineChart.data.labels[index];
+                            const year = chart.data.labels[index];
                             let status = '';
                             if (datasetIndex === 0) status = 'Verified';
                             else if (datasetIndex === 1) status = 'Unverified';
@@ -345,11 +345,11 @@
                     }]
                 },
                 options: {
-                    onClick: (event, activeElements) => {
+                    onClick: (event, activeElements, chart) => {
                         if (activeElements.length > 0) {
                             const activeElement = activeElements[0];
                             const index = activeElement.index;
-                            const year = barChart.data.labels[index];
+                            const year = chart.data.labels[index];
                             window.location.href = `unggah_tawaran.html?tahun=${year}`;
                         } else {
                             window.location.href = 'unggah_tawaran.html';
