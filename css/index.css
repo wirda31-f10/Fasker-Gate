@@ -15,15 +15,17 @@ select {
 
 html {
     scroll-behavior: smooth;
-    
+    background-color: #D7E4F3;
 }
 
 body {
-    margin: 0 auto;
+    width: 1180px;
     min-width: 1180px;
+    margin: 0 auto;
     background-color: #D7E4F3;
     background-image: linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 850px, #D7E4F3 1200px, #D7E4F3 100%);
     background-repeat: no-repeat;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
 }
 
 main {

@@ -8,14 +8,19 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+html {
+    background-color: #E8EDF2;
+}
+
 body {
-    width: 100%;
+    width: 1180px;
     min-width: 1180px;
     margin: 0 auto;
     height: 100vh;
     display: flex;
     overflow: hidden;
     background: #f4f7f6;
+    box-shadow: 0 0 20px rgba(0,0,0,0.08);
     /* fallback */
 }
 
