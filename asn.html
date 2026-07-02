@@ -97,7 +97,7 @@
     <script>
         const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
         const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </head>
 
@@ -490,32 +490,15 @@
             const grid = document.querySelector('.beasiswa-grid');
             if (!grid) return;
             
-            const staticOffers = [
-                { judul: "Awards Scholarship Australia", periode: "2 Tahun", negara: "Australia", kuantitas: "15 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Beasiswa Magister di Australia.", tahun: "2026" },
-                { judul: "Leadership Training In Korea", periode: "1 Tahun", negara: "Korea", kuantitas: "10 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Pelatihan kepemimpinan di Korea.", tahun: "2026" },
-                { judul: "Fullbright Program USA", periode: "2 Tahun", negara: "USA", kuantitas: "8 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Beasiswa Magister di Amerika Serikat.", tahun: "2026" },
-                { judul: "JICA Training Program Japan", periode: "1 Tahun", negara: "Japan", kuantitas: "12 ASN", persyaratan: "IPK > 3.0, TOEFL > 500", detail: "Pelatihan kerja sama teknis di Jepang.", tahun: "2026" },
-                { judul: "Ranu (Beasiswa Thailand)", periode: "1 Tahun", negara: "Thailand", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan tata kelola perkotaan.", tahun: "2025" },
-                { judul: "Ranu (Beasiswa Vietnam)", periode: "2 Tahun", negara: "Vietnam", kuantitas: "15 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa studi banding sistem pertanian.", tahun: "2025" },
-                { judul: "Ranu (Beasiswa Thailand)", periode: "1 Tahun", negara: "Thailand", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan tata kelola perkotaan.", tahun: "2024" },
-                { judul: "Ranu (Beasiswa Singapura)", periode: "3 Tahun", negara: "Singapura", kuantitas: "10 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa Magister Kebijakan Publik.", tahun: "2024" },
-                { judul: "Ranu (Beasiswa Malaysia)", periode: "2 Tahun", negara: "Malaysia", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa Magister Manajemen Publik.", tahun: "2023" },
-                { judul: "Ranu (Beasiswa Kamboja)", periode: "1 Tahun", negara: "Kamboja", kuantitas: "5 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan kerja sama sosial-budaya ASEAN.", tahun: "2023" },
-                { judul: "Ranu (Beasiswa Amerika)", periode: "3 Tahun", negara: "Amerika", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Program Fellowship Kebijakan Publik.", tahun: "2022" },
-                { judul: "Ranu (Beasiswa Inggris)", periode: "1 Tahun", negara: "Inggris", kuantitas: "12 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Tata Kelola Pemerintahan Daerah.", tahun: "2022" },
-                { judul: "Ranu (Beasiswa Australia)", periode: "1 Tahun", negara: "Australia", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Tata Kelola Publik Internasional.", tahun: "2021" },
-                { judul: "Ranu (Beasiswa Selandia Baru)", periode: "2 Tahun", negara: "Selandia Baru", kuantitas: "8 ASN", persyaratan: "IPK > 3.0", detail: "Beasiswa studi pascasarjana.", tahun: "2021" },
-                { judul: "Ranu (Beasiswa Korea)", periode: "1 Tahun", negara: "Korea", kuantitas: "20 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Sistem Pemerintahan Digital.", tahun: "2020" },
-                { judul: "Ranu (Beasiswa Jepang)", periode: "1 Tahun", negara: "Jepang", kuantitas: "25 ASN", persyaratan: "IPK > 3.0", detail: "Pelatihan Manajemen Logistik dan Transportasi.", tahun: "2020" }
-            ];
+            const staticOffers = [];
             
             let dynamicOffers = [];
             let appList = [];
-            if (window.supabase) {
-                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
+            if (window.supabase && typeof window.supabase.from === 'function') {
+                const { data: offersData } = await window.supabase.from('fasker_scholarships').select('*');
                 dynamicOffers = offersData || [];
 
-                const { data: appsData } = await supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
+                const { data: appsData } = await window.supabase.from('fasker_applications').select('scholarship_title').not('scholarship_title', 'is', null);
                 appList = appsData || [];
             }
 
@@ -628,18 +611,18 @@
         async function renderDashboardCharts() {
             let offers = [];
             let apps = [];
-            if (window.supabase) {
-                const { data: offersData } = await supabase.from('fasker_scholarships').select('*');
+            if (window.supabase && typeof window.supabase.from === 'function') {
+                const { data: offersData } = await window.supabase.from('fasker_scholarships').select('*');
                 offers = offersData || [];
 
-                const { data: appsData } = await supabase.from('fasker_applications').select('*').is('scholarship_title', null);
+                const { data: appsData } = await window.supabase.from('fasker_applications').select('*').is('scholarship_title', null);
                 apps = appsData || [];
             }
             const deletedStatics = JSON.parse(localStorage.getItem('deleted_static_rows') || '[]');
             const staticStatuses = JSON.parse(localStorage.getItem('static_row_statuses') || '{}');
 
             // 1. Hitung Total Tawaran Beasiswa (Membaca semua tawaran statis dan dinamis yang masih buka)
-            let openOffers = 4; // 4 Beasiswa statis dari Beranda
+            let openOffers = 0;
             offers.forEach(offer => {
                 const startYear = parseInt(offer.tahun) || 2026;
                 const duration = parseInt(offer.periode) || 1;
@@ -765,14 +748,7 @@
             });
 
             // 3. Bar Chart: Total Tawaran Beasiswa per Tahun
-            const defaultStaticOffers = [
-                { id: 1, tahun: '2025' }, { id: 2, tahun: '2025' }, { id: 3, tahun: '2024' }, { id: 4, tahun: '2024' },
-                { id: 5, tahun: '2023' }, { id: 6, tahun: '2023' }, { id: 7, tahun: '2022' }, { id: 8, tahun: '2022' },
-                { id: 9, tahun: '2021' }, { id: 10, tahun: '2021' }, { id: 11, tahun: '2020' }, { id: 12, tahun: '2020' }
-            ];
-
             const offersPerYear = { '2020': 0, '2021': 0, '2022': 0, '2023': 0, '2024': 0, '2025': 0, '2026': 0 };
-            defaultStaticOffers.forEach(offer => { offersPerYear[offer.tahun]++; });
 
             offers.forEach(offer => {
                 const offerTahun = offer.tahun || '2026';
