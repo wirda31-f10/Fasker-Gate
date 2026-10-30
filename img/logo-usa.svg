@@ -1,0 +1,7 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <circle cx="40" cy="40" r="40" fill="#002868"/>
+  <path d="M40 15 L43 28 H56 L46 36 L49 49 L40 41 L31 49 L34 36 L24 28 H37 Z" fill="#BF0A30"/>
+  <path d="M40 22 L42 30 H51 L44 35 L46 43 L40 38 L34 43 L36 35 L29 30 H38 Z" fill="#FFD700"/>
+  <text x="40" y="62" text-anchor="middle" fill="white" font-size="8" font-family="Arial" font-weight="bold">FULBRIGHT</text>
+  <text x="40" y="72" text-anchor="middle" fill="#FFD700" font-size="7" font-family="Arial">U.S.A</text>
+</svg>

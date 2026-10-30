@@ -1,0 +1,6 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <circle cx="40" cy="40" r="40" fill="white" stroke="#ccc" stroke-width="1"/>
+  <circle cx="40" cy="38" r="20" fill="#BC002D"/>
+  <text x="40" y="68" text-anchor="middle" fill="#BC002D" font-size="10" font-family="Arial" font-weight="bold">JICA</text>
+  <text x="40" y="77" text-anchor="middle" fill="#555" font-size="6.5" font-family="Arial">JAPAN</text>
+</svg>
