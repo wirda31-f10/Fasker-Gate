@@ -1,5 +1,10 @@
-// Data Statis Beasiswa
-const staticOffers = [];
+// Data Statis Beasiswa (fallback jika Supabase kosong)
+const staticOffers = [
+    { judul: "Awards Scholarship Australia", negara: "Australia", tahun: "2026", kuantitas: "10", persyaratan: "ASN aktif, TOEFL min. 500", logo: "img/Dashboard.png" },
+    { judul: "Leadership Training In Korea", negara: "Korea Selatan", tahun: "2026", kuantitas: "5", persyaratan: "ASN aktif, max. 45 tahun", logo: "img/Detail.png" },
+    { judul: "Fullbright Program USA", negara: "Amerika Serikat", tahun: "2026", kuantitas: "8", persyaratan: "ASN aktif, TOEFL min. 550", logo: "img/Upload Tawaran.png" },
+    { judul: "JICA Training Program Japan", negara: "Jepang", tahun: "2026", kuantitas: "12", persyaratan: "ASN aktif, rekomendasi instansi", logo: "img/Verifikasi (2).png" }
+];
 
 async function getAllOffers() {
     if (!window.supabase) return [];
@@ -13,18 +18,23 @@ async function getAllOffers() {
     // Add default logo if missing, or map to predefined beautiful icons
     dynamicOffers.forEach(o => {
         if (o.judul === "Awards Scholarship Australia") {
-            o.logo = "https://i.ibb.co.com/zWMtT46F/icon1-removebg-preview.png";
+            o.logo = "img/Dashboard.png";
         } else if (o.judul === "Leadership Training In Korea") {
-            o.logo = "https://i.ibb.co.com/wrM3vmJb/icon2-removebg-preview.png";
+            o.logo = "img/Detail.png";
         } else if (o.judul === "Fullbright Program USA") {
-            o.logo = "https://i.ibb.co.com/C3ynQGLf/icon3-removebg-preview.png";
+            o.logo = "img/Upload Tawaran.png";
         } else if (o.judul === "JICA Training Program Japan") {
-            o.logo = "https://i.ibb.co.com/QjdrwZGJ/icon4-removebg-preview.png";
+            o.logo = "img/Verifikasi (2).png";
         } else if (!o.logo) {
-            o.logo = "https://i.ibb.co.com/hJsf9vqP/Logo-Fasker.png";
+            o.logo = "img/Logo Fasker .png";
         }
     });
     
+    // Jika Supabase tidak mengembalikan data, gunakan data statis
+    if (dynamicOffers.length === 0) {
+        return staticOffers;
+    }
+
     return dynamicOffers.filter(offer => {
         // Jika beasiswa memiliki tahun dan periode
         if (offer.tahun) {
@@ -32,8 +42,9 @@ async function getAllOffers() {
             const duration = parseInt(offer.periode) || 1;
             const endYear = startYear + duration;
             
-            // Tampilkan hanya yang masih aktif (endYear > 2026)
-            return endYear > 2026;
+            // Tampilkan hanya yang masih aktif (endYear >= tahun sekarang)
+            const currentYear = new Date().getFullYear();
+            return endYear >= currentYear;
         }
         return true;
     });
