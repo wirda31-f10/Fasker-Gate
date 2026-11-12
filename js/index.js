@@ -15,6 +15,13 @@ async function getAllOffers() {
     }
     const dynamicOffers = dynamicOffersList || [];
     
+    // Rename entry "Ranu" menjadi "Beasiswa Asing"
+    dynamicOffers.forEach(o => {
+        if (o.judul && o.judul.toLowerCase().includes('ranu')) {
+            o.judul = 'Beasiswa Asing';
+        }
+    });
+
     // Add default logo if missing, or map to predefined beautiful icons
     dynamicOffers.forEach(o => {
         if (o.judul === "Awards Scholarship Australia") {
