@@ -588,6 +588,13 @@ main {
     line-height: 1.7;
 }
 
+.footer-center .footer-links {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
 .social-icons {
     display: flex;
     align-items: center;
