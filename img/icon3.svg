@@ -1,0 +1,21 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="22" fill="#3A7BD5"/>
+  <rect y="58" width="100" height="42" rx="0" fill="#E63946"/>
+  <rect y="55" x="0" width="100" height="10" rx="0" fill="#E63946"/>
+  <clipPath id="rounded">
+    <rect width="100" height="100" rx="22"/>
+  </clipPath>
+  <rect y="60" width="100" height="40" rx="0" fill="#E63946" clip-path="url(#rounded)"/>
+  <g fill="white" transform="translate(50,54)">
+    <!-- tower base -->
+    <rect x="-6" y="-2" width="12" height="18" rx="1"/>
+    <!-- tower mid -->
+    <rect x="-9" y="-10" width="18" height="10" rx="1"/>
+    <!-- tower top spire -->
+    <rect x="-3" y="-28" width="6" height="20" rx="1"/>
+    <!-- top tip -->
+    <polygon points="0,-34 -3,-28 3,-28"/>
+    <!-- base platform -->
+    <rect x="-16" y="14" width="32" height="5" rx="2"/>
+  </g>
+</svg>

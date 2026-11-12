@@ -1,0 +1,13 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="22" fill="#4A6CF7"/>
+  <g fill="white" transform="translate(50,52)">
+    <!-- flames -->
+    <ellipse cx="0" cy="-10" rx="5" ry="10"/>
+    <ellipse cx="-8" cy="-6" rx="4" ry="8" transform="rotate(-15)"/>
+    <ellipse cx="8" cy="-6" rx="4" ry="8" transform="rotate(15)"/>
+    <!-- logs -->
+    <rect x="-16" y="0" width="32" height="5" rx="2.5"/>
+    <rect x="-12" y="-2" width="24" height="5" rx="2.5" transform="rotate(-30 0 0)"/>
+    <rect x="-12" y="-2" width="24" height="5" rx="2.5" transform="rotate(30 0 0)"/>
+  </g>
+</svg>

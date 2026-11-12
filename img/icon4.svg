@@ -1,0 +1,9 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="22" fill="#2C5282"/>
+  <g transform="translate(50,50)">
+    <!-- white pentagon -->
+    <polygon points="0,-32 30,-10 19,26 -19,26 -30,-10" fill="white"/>
+    <!-- red circle in center -->
+    <circle cx="0" cy="2" r="14" fill="#E63946"/>
+  </g>
+</svg>
