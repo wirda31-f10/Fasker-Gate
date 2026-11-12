@@ -16,7 +16,7 @@
     <script>
         const supabaseUrl = 'https://ogsstamvptbknfvaddtt.supabase.co';
         const supabaseKey = 'sb_publishable_aSaLqvCDEyJownZDN9WgOw_nCn0JAe-';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        window.supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
     </script>
 </head>
 
@@ -114,11 +114,11 @@
 
             // Untuk ASN: Periksa data di Supabase
             try {
-                if (!window.supabase && typeof supabase === 'undefined') {
-                    showAlert('Koneksi Gagal', 'Layanan database tidak dapat dihubungi. Silakan periksa jaringan internet.');
+                const client = window.supabase;
+                if (!client || typeof client.from !== 'function') {
+                    showAlert('Koneksi Gagal', 'Layanan database belum siap atau tidak dapat dihubungi. Silakan refresh halaman.');
                     return;
                 }
-                const client = window.supabase || supabase;
 
                 // 1. Check user in fasker_users
                 const { data: userList, error: userError } = await client
