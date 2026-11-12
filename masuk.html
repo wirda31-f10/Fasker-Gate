@@ -112,7 +112,7 @@
                 return;
             }
 
-            // Untuk ASN: Periksa data di Supabase
+            // Untuk ASN: Periksa data di Supabase (fasker_applications)
             try {
                 const client = window.supabase;
                 if (!client || typeof client.from !== 'function') {
@@ -120,28 +120,21 @@
                     return;
                 }
 
-                // 1. Check user in fasker_users
-                const { data: userList, error: userError } = await client
-                    .from('fasker_users')
-                    .select('*')
-                    .eq('email', email);
-                
-                if (userError || !userList || userList.length === 0) {
-                    showAlert('Belum Terdaftar', 'Email belum terdaftar di sistem. Silakan lakukan pendaftaran akun terlebih dahulu.');
-                    return;
-                }
-                const user = userList[0];
-                
-                // 2. Check registration status in fasker_applications
+                // Cari data berkas pendaftaran akun ASN di fasker_applications
                 const { data: appList, error: appError } = await client
                     .from('fasker_applications')
                     .select('*')
-                    .eq('email', email)
+                    .ilike('email', email)
                     .is('scholarship_title', null);
                 
-                if (appError || !appList || appList.length === 0) {
-                    showAlert('Pemberkasan', 'Data berkas pendaftaran Anda belum lengkap. Silakan lengkapi pemberkasan.');
-                    window.location.href = 'input_data.html';
+                if (appError) {
+                    console.error("Database query error:", appError);
+                    showAlert('Error Database', 'Gagal memeriksa data pendaftaran: ' + appError.message);
+                    return;
+                }
+
+                if (!appList || appList.length === 0) {
+                    showAlert('Belum Terdaftar', 'Email belum terdaftar di sistem. Silakan lakukan pendaftaran akun terlebih dahulu.');
                     return;
                 }
                 const userApp = appList[0];
@@ -156,13 +149,13 @@
                 }
                 
                 // Populate active session in localStorage
-                localStorage.setItem('asn_nama', user.nama || '');
-                localStorage.setItem('asn_email', user.email || '');
-                localStorage.setItem('asn_hp', user.hp || '');
-                localStorage.setItem('asn_instansi', user.instansi || '');
-                localStorage.setItem('asn_nip', user.nip || '');
-                localStorage.setItem('asn_gol', user.gol || '');
-                localStorage.setItem('asn_jabatan', user.jabatan || '');
+                localStorage.setItem('asn_nama', userApp.nama || '');
+                localStorage.setItem('asn_email', userApp.email || '');
+                localStorage.setItem('asn_hp', userApp.hp || '');
+                localStorage.setItem('asn_instansi', userApp.instansi || '');
+                localStorage.setItem('asn_nip', userApp.nip || '');
+                localStorage.setItem('asn_gol', userApp.gol || '');
+                localStorage.setItem('asn_jabatan', userApp.jabatan || '');
                 localStorage.setItem('asn_surat', userApp.surat || '');
                 localStorage.setItem('asn_formulir', userApp.formulir || '');
                 localStorage.setItem('asn_cv', userApp.cv || '');
