@@ -98,47 +98,66 @@
         }
 
         async function handleLogin() {
-            const email = document.getElementById('loginEmail').value.toLowerCase().trim();
-            if (email.includes('admin')) {
+            const emailInput = document.getElementById('loginEmail');
+            const email = emailInput ? emailInput.value.toLowerCase().trim() : '';
+            
+            if (!email) {
+                showAlert('Perhatian', 'Silakan masukkan alamat email Anda.');
+                return;
+            }
+
+            // Jika admin menggunakan alamat email yang berakhiran / mengandung @admin.com atau kata admin
+            if (email.includes('@admin.com') || email.includes('admin')) {
                 window.location.href = 'admin.html';
-            } else {
+                return;
+            }
+
+            // Untuk ASN: Periksa data di Supabase
+            try {
+                if (!window.supabase && typeof supabase === 'undefined') {
+                    showAlert('Koneksi Gagal', 'Layanan database tidak dapat dihubungi. Silakan periksa jaringan internet.');
+                    return;
+                }
+                const client = window.supabase || supabase;
+
                 // 1. Check user in fasker_users
-                const { data: userList, error: userError } = await supabase
+                const { data: userList, error: userError } = await client
                     .from('fasker_users')
                     .select('*')
                     .eq('email', email);
                 
                 if (userError || !userList || userList.length === 0) {
-                    showAlert('Halo', 'Email belum terdaftar. Silakan buat akun terlebih dahulu.');
+                    showAlert('Belum Terdaftar', 'Email belum terdaftar di sistem. Silakan lakukan pendaftaran akun terlebih dahulu.');
                     return;
                 }
                 const user = userList[0];
                 
                 // 2. Check registration status in fasker_applications
-                const { data: appList, error: appError } = await supabase
+                const { data: appList, error: appError } = await client
                     .from('fasker_applications')
                     .select('*')
                     .eq('email', email)
                     .is('scholarship_title', null);
                 
                 if (appError || !appList || appList.length === 0) {
-                    showAlert('Halo, ' + user.nama, 'Data berkas pendaftaran Anda tidak ditemukan.');
+                    showAlert('Pemberkasan', 'Data berkas pendaftaran Anda belum lengkap. Silakan lengkapi pemberkasan.');
+                    window.location.href = 'input_data.html';
                     return;
                 }
                 const userApp = appList[0];
                 
                 if (userApp.status !== 'Verified') {
                     if (userApp.status === 'Unverified') {
-                        showAlert('Halo, ' + user.nama, 'Mohon maaf, pendaftaran Anda ditolak oleh Admin.');
+                        showAlert('Status Pendaftaran', 'Mohon maaf, pendaftaran Anda belum disetujui / ditolak oleh Admin.');
                     } else {
-                        showAlert('Halo, ' + user.nama, 'Data Anda belum diverifikasi oleh Admin. Harap menunggu proses verifikasi sebelum masuk.');
+                        showAlert('Data Diterima', 'Data diterima, mohon ditunggu proses verifikasi oleh Admin.');
                     }
                     return;
                 }
                 
                 // Populate active session in localStorage
-                localStorage.setItem('asn_nama', user.nama);
-                localStorage.setItem('asn_email', user.email);
+                localStorage.setItem('asn_nama', user.nama || '');
+                localStorage.setItem('asn_email', user.email || '');
                 localStorage.setItem('asn_hp', user.hp || '');
                 localStorage.setItem('asn_instansi', user.instansi || '');
                 localStorage.setItem('asn_nip', user.nip || '');
@@ -150,6 +169,9 @@
                 localStorage.setItem('asn_toefl', userApp.toefl || '');
                 
                 window.location.href = 'asn.html';
+            } catch (err) {
+                console.error('Login error:', err);
+                showAlert('Error', 'Terjadi kendala saat memproses login: ' + (err.message || 'Silakan coba beberapa saat lagi.'));
             }
         }
     </script>
