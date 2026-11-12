@@ -1,9 +1,9 @@
 // Data Statis Beasiswa (fallback jika Supabase kosong)
 const staticOffers = [
-    { judul: "Awards Scholarship Australia", negara: "Australia", tahun: "2026", kuantitas: "10", persyaratan: "ASN aktif, TOEFL min. 500", logo: "img/logo-australia.svg" },
-    { judul: "Leadership Training In Korea", negara: "Korea Selatan", tahun: "2026", kuantitas: "5", persyaratan: "ASN aktif, max. 45 tahun", logo: "img/logo-korea.svg" },
-    { judul: "Fullbright Program USA", negara: "Amerika Serikat", tahun: "2026", kuantitas: "8", persyaratan: "ASN aktif, TOEFL min. 550", logo: "img/logo-usa.svg" },
-    { judul: "JICA Training Program Japan", negara: "Jepang", tahun: "2026", kuantitas: "12", persyaratan: "ASN aktif, rekomendasi instansi", logo: "img/logo-japan.svg" }
+    { judul: "Awards Scholarship Australia", negara: "Australia", tahun: "2026", kuantitas: "10", persyaratan: "ASN aktif, TOEFL min. 500", logo: "img/Beasiswa-Australia.png" },
+    { judul: "Leadership Training In Korea", negara: "Korea Selatan", tahun: "2026", kuantitas: "5", persyaratan: "ASN aktif, max. 45 tahun", logo: "img/Beasiswa-Korea.png" },
+    { judul: "Fullbright Program USA", negara: "Amerika Serikat", tahun: "2026", kuantitas: "8", persyaratan: "ASN aktif, TOEFL min. 550", logo: "img/Beasiswa-USA.png" },
+    { judul: "JICA Training Program Japan", negara: "Jepang", tahun: "2026", kuantitas: "12", persyaratan: "ASN aktif, rekomendasi instansi", logo: "img/Beasiswa-Jepang.png" }
 ];
 
 async function getAllOffers() {
@@ -18,13 +18,13 @@ async function getAllOffers() {
     // Add default logo if missing, or map to predefined beautiful icons
     dynamicOffers.forEach(o => {
         if (o.judul === "Awards Scholarship Australia") {
-            o.logo = "img/logo-australia.svg";
+            o.logo = "img/Beasiswa-Australia.png";
         } else if (o.judul === "Leadership Training In Korea") {
-            o.logo = "img/logo-korea.svg";
+            o.logo = "img/Beasiswa-Korea.png";
         } else if (o.judul === "Fullbright Program USA") {
-            o.logo = "img/logo-usa.svg";
+            o.logo = "img/Beasiswa-USA.png";
         } else if (o.judul === "JICA Training Program Japan") {
-            o.logo = "img/logo-japan.svg";
+            o.logo = "img/Beasiswa-Jepang.png";
         } else if (!o.logo) {
             o.logo = "img/Logo Fasker .png";
         }
